@@ -4,65 +4,106 @@ using UnityEngine;
 
 public class PickupPinkBox : MonoBehaviour
 {
-    bool colligingWithBox = false;
+    int colligingWithBoxSem = 0;
     bool pickedUpBox = false;
-    GameObject pinkBox;
+    Stack<GameObject> pinkBoxCollided;
+    Stack<GameObject> pinkBoxStackPickedUp;
     Transform pinkBoxFather;
+    string pinkBoxTag = "PinkBox";
 
     // Start is called before the first frame update
     void Start()
     {
-        pinkBox = GameObject.FindWithTag("PinkBox");
-        pinkBoxFather = pinkBox.transform.parent;
-        Physics.IgnoreCollision(pinkBox.GetComponent<Collider>(), GetComponent<Collider>());
+
+        GameObject[] allPinkBoxes = GameObject.FindGameObjectsWithTag(pinkBoxTag);
+        foreach (GameObject pinkboxAux in allPinkBoxes)
+        {
+            Physics.IgnoreCollision(pinkboxAux.GetComponent<Collider>(), GetComponent<Collider>());
+        }
+
+        pinkBoxStackPickedUp = new Stack<GameObject>();
+        pinkBoxCollided = new Stack<GameObject>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("TRIGGER COLLEDED WITH " + other.tag);
-        if(pinkBox.tag == other.tag)
-            colligingWithBox = true;
+        Debug.Log(colligingWithBoxSem + "TRIGGER COLLIDED WITH " + other.tag);
+        if (pinkBoxTag == other.tag)
+        {
+            pinkBoxCollided.Push(other.gameObject);
+            pinkBoxFather = other.gameObject.transform.parent;
+            colligingWithBoxSem ++;
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("TRIGGER EXITED WITH " + other.tag);
-        if (pinkBox.tag == other.tag)
-            colligingWithBox = false;
+        Debug.Log(colligingWithBoxSem + "TRIGGER EXITED WITH " + other.tag);
+        if (pinkBoxTag == other.tag)
+        {
+            colligingWithBoxSem--;
+            pinkBoxCollided.Pop();
+        }
     }
 
-
-    private void moveBoxToTopOfHead()
+    private void dropBox()
     {
+        //TODO: Speed Guy Back Up
+        GameObject pinkBoxDrop = pinkBoxStackPickedUp.Pop();
+        Rigidbody rb = pinkBoxDrop.GetComponent<Rigidbody>();
+        rb.velocity = new Vector3(0, 0, 0);
+        rb.useGravity = true;
+        pinkBoxDrop.transform.parent = pinkBoxFather;
+    }
+
+    private void pickupBox()
+    {
+        //TODO: Slow Guy Down
+        GameObject pinkBox = pinkBoxCollided.Pop();
+        pinkBoxCollided.Push(pinkBox);
+        pinkBoxStackPickedUp.Push(pinkBox);
         Rigidbody rb = pinkBox.GetComponent<Rigidbody>();
-        if (pickedUpBox)
-        {
-            rb.velocity = new Vector3(0, 0, 0);
-            rb.useGravity = true;
-            pinkBox.transform.parent = pinkBoxFather;
-        }
-        else
-        {
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.useGravity = false;
-            Vector3 ls = pinkBox.transform.localScale;
-            pinkBox.transform.parent = gameObject.transform;
-        }
-        pickedUpBox = !pickedUpBox;
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.useGravity = false;
+        pinkBox.transform.parent = gameObject.transform;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && colligingWithBox)
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            moveBoxToTopOfHead();
+            if (0 < colligingWithBoxSem && pinkBoxStackPickedUp.ToArray().Length < 4)
+            {
+                pickupBox();
+            }
+            else
+                if (pinkBoxStackPickedUp.ToArray().Length > 0)
+                {
+                   dropBox();
+                }
         }
 
-        if (pickedUpBox)
+        int index = 0;
+        GameObject[] arrPinkBoxes = pinkBoxStackPickedUp.ToArray();
+        foreach (GameObject pB in arrPinkBoxes)
         {
-            pinkBox.transform.position = gameObject.transform.position;
+            Vector3 newV = gameObject.transform.position;
+            newV.y += 1;
+            switch (index++)
+            {
+                case 0:
+                    newV.y += 2;
+                    break;
+                case 1:
+                    newV.x += 1.5f;
+                    break;
+                case 2:
+                    newV.x -= 1.5f;
+                    break;
+            }
+            pB.transform.position = newV;
         }
     }
 }
