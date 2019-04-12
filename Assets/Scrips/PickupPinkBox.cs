@@ -9,9 +9,7 @@ public class PickupPinkBox : MonoBehaviour
     bool pickedUpBox = false;
     Stack<GameObject> pinkBoxCollided;
     Stack<GameObject> pinkBoxStackPickedUp;
-    Transform pinkBoxFather;
     string pinkBoxTag = "PinkBox";
-
     ThirdPersonUserControl userControls;
 
     private void Awake()
@@ -39,7 +37,6 @@ public class PickupPinkBox : MonoBehaviour
         if (pinkBoxTag == other.tag)
         {
             pinkBoxCollided.Push(other.gameObject);
-            pinkBoxFather = other.gameObject.transform.parent;
             colligingWithBoxSem ++;
         }
     }
@@ -65,10 +62,10 @@ public class PickupPinkBox : MonoBehaviour
                 userControls.changeWalkSpeed(1f);
                 break;
             case 2:
-                userControls.changeWalkSpeed(0.75f);
+                userControls.changeWalkSpeed(0.85f);
                 break;
             case 3:
-                userControls.changeWalkSpeed(0.50f);
+                userControls.changeWalkSpeed(0.65f);
                 break;
         }
     }   
@@ -82,7 +79,6 @@ public class PickupPinkBox : MonoBehaviour
         Rigidbody rb = pinkBoxDrop.GetComponent<Rigidbody>();
         rb.velocity = new Vector3(0, 0, 0);
         rb.useGravity = true;
-        pinkBoxDrop.transform.parent = pinkBoxFather;
     }
 
     private void pickupBox()
@@ -96,11 +92,8 @@ public class PickupPinkBox : MonoBehaviour
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         rb.useGravity = false;
-        pinkBox.transform.parent = gameObject.transform;
     }
 
-    Quaternion oldR;
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.E))
@@ -116,6 +109,11 @@ public class PickupPinkBox : MonoBehaviour
                 }
         }
 
+        updatePinkBoxRotations();
+    }
+
+    private void updatePinkBoxRotations()
+    {
         int index = 0;
         GameObject[] arrPinkBoxes = pinkBoxStackPickedUp.ToArray();
         foreach (GameObject pB in arrPinkBoxes)
@@ -137,13 +135,10 @@ public class PickupPinkBox : MonoBehaviour
                     break;
             }
             pB.transform.position = newV;
-            //if(!oldR.Equals(newR))
             pB.transform.rotation = newR;
-            pB.transform.RotateAround(oldNewV, Vector3.up, newR.eulerAngles.y);// - oldR.eulerAngles.y);
-            oldR = newR;
-            //pB.transform.rotation = newR.eulerAngles.x;
-
-
+            pB.transform.RotateAround(newV, Vector3.up, -newR.eulerAngles.y);
+            pB.transform.RotateAround(oldNewV, Vector3.up, newR.eulerAngles.y);
         }
     }
+    
 }
