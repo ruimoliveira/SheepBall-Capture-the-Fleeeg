@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityStandardAssets.Characters.ThirdPerson;
 
 public class PickupPinkBox : MonoBehaviour
 {
@@ -10,6 +11,13 @@ public class PickupPinkBox : MonoBehaviour
     Stack<GameObject> pinkBoxStackPickedUp;
     Transform pinkBoxFather;
     string pinkBoxTag = "PinkBox";
+
+    ThirdPersonUserControl userControls;
+
+    private void Awake()
+    {
+        userControls = GetComponent<ThirdPersonUserControl>();
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -46,10 +54,31 @@ public class PickupPinkBox : MonoBehaviour
         }
     }
 
+    private void changePlayerSpeed()
+    {
+        switch (pinkBoxStackPickedUp.ToArray().Length)
+        {
+            case 0:
+                userControls.changeWalkSpeed(1f);
+                break;
+            case 1:
+                userControls.changeWalkSpeed(1f);
+                break;
+            case 2:
+                userControls.changeWalkSpeed(0.75f);
+                break;
+            case 3:
+                userControls.changeWalkSpeed(0.50f);
+                break;
+        }
+    }   
+
+
     private void dropBox()
     {
-        //TODO: Speed Guy Back Up
         GameObject pinkBoxDrop = pinkBoxStackPickedUp.Pop();
+        changePlayerSpeed();
+
         Rigidbody rb = pinkBoxDrop.GetComponent<Rigidbody>();
         rb.velocity = new Vector3(0, 0, 0);
         rb.useGravity = true;
@@ -58,10 +87,11 @@ public class PickupPinkBox : MonoBehaviour
 
     private void pickupBox()
     {
-        //TODO: Slow Guy Down
-        GameObject pinkBox = pinkBoxCollided.Pop();
-        pinkBoxCollided.Push(pinkBox);
+        GameObject pinkBox = pinkBoxCollided.Pop(); pinkBoxCollided.Push(pinkBox);
+
         pinkBoxStackPickedUp.Push(pinkBox);
+        changePlayerSpeed();
+
         Rigidbody rb = pinkBox.GetComponent<Rigidbody>();
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
@@ -69,6 +99,7 @@ public class PickupPinkBox : MonoBehaviour
         pinkBox.transform.parent = gameObject.transform;
     }
 
+    Quaternion oldR;
     // Update is called once per frame
     void Update()
     {
@@ -90,6 +121,8 @@ public class PickupPinkBox : MonoBehaviour
         foreach (GameObject pB in arrPinkBoxes)
         {
             Vector3 newV = gameObject.transform.position;
+            Vector3 oldNewV = newV;
+            Quaternion newR = gameObject.transform.rotation;
             newV.y += 1;
             switch (index++)
             {
@@ -104,6 +137,13 @@ public class PickupPinkBox : MonoBehaviour
                     break;
             }
             pB.transform.position = newV;
+            //if(!oldR.Equals(newR))
+            pB.transform.rotation = newR;
+            pB.transform.RotateAround(oldNewV, Vector3.up, newR.eulerAngles.y);// - oldR.eulerAngles.y);
+            oldR = newR;
+            //pB.transform.rotation = newR.eulerAngles.x;
+
+
         }
     }
 }
