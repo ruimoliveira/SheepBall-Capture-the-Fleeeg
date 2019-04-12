@@ -12,6 +12,11 @@ public class PickupPinkBox : MonoBehaviour
     string pinkBoxTag = "PinkBox";
     ThirdPersonUserControl userControls;
 
+    public Stack<GameObject> getCubeStack()
+    {
+        return pinkBoxStackPickedUp;
+    }
+
     private void Awake()
     {
         userControls = GetComponent<ThirdPersonUserControl>();
@@ -71,14 +76,24 @@ public class PickupPinkBox : MonoBehaviour
     }   
 
 
-    private void dropBox()
+    public GameObject removePinkCube()
     {
+        if (pinkBoxStackPickedUp.ToArray().Length == 0)
+            return null;
+
         GameObject pinkBoxDrop = pinkBoxStackPickedUp.Pop();
         changePlayerSpeed();
 
         Rigidbody rb = pinkBoxDrop.GetComponent<Rigidbody>();
         rb.velocity = new Vector3(0, 0, 0);
         rb.useGravity = true;
+
+        return pinkBoxDrop;
+    }
+
+    private void dropBox()
+    {
+        removePinkCube();
     }
 
     private void pickupBox()
@@ -112,7 +127,7 @@ public class PickupPinkBox : MonoBehaviour
         updatePinkBoxRotations();
     }
 
-    private void updatePinkBoxRotations()
+    public void updatePinkBoxRotations()
     {
         int index = 0;
         GameObject[] arrPinkBoxes = pinkBoxStackPickedUp.ToArray();
