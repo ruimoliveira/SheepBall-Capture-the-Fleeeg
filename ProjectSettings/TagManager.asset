@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PinkBox
   - Camera
+  - Score
   layers:
   - Default
   - TransparentFX

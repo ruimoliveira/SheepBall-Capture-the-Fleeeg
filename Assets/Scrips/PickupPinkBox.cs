@@ -6,7 +6,6 @@ using UnityStandardAssets.Characters.ThirdPerson;
 public class PickupPinkBox : MonoBehaviour
 {
     int colligingWithBoxSem = 0;
-    bool pickedUpBox = false;
     Stack<GameObject> pinkBoxCollided;
     Stack<GameObject> pinkBoxStackPickedUp;
     string pinkBoxTag = "PinkBox";
