@@ -19,6 +19,8 @@ public class PickupPinkBox : MonoBehaviour
     private void Awake()
     {
         userControls = GetComponent<ThirdPersonUserControl>();
+        pinkBoxStackPickedUp = new Stack<GameObject>();
+        pinkBoxCollided = new Stack<GameObject>();
     }
 
     // Start is called before the first frame update
@@ -30,9 +32,6 @@ public class PickupPinkBox : MonoBehaviour
         {
             Physics.IgnoreCollision(pinkboxAux.GetComponent<Collider>(), GetComponent<Collider>());
         }
-
-        pinkBoxStackPickedUp = new Stack<GameObject>();
-        pinkBoxCollided = new Stack<GameObject>();
     }
 
     private void OnTriggerEnter(Collider other)

@@ -7,24 +7,23 @@ public class ScoringPlane : MonoBehaviour
 {
     string pinkBoxTag = "PinkBox";
     Text scoreText = null;
-    int score = 0;
+    float score = 0;
 
     private void Awake()
     {
-        //scoreText = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>();
+        scoreText = GameObject.FindGameObjectWithTag("Score").GetComponent<Text>();
     }
 
     private void changeScoreInUI()
     {
-        //scoreText.text = "Score: " + score;
-        Debug.Log("Score: " + score);
+        scoreText.text = "Score: " + score;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if(other.tag == pinkBoxTag)
         {
-            score++;
+            score+=0.5f;
             changeScoreInUI();
         }
     }
@@ -33,7 +32,7 @@ public class ScoringPlane : MonoBehaviour
     {
         if (other.tag == pinkBoxTag)
         {
-            score--;
+            score -= 0.5f;
             changeScoreInUI();
         }
     }
