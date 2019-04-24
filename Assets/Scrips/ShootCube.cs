@@ -8,9 +8,9 @@ public class ShootCube : MonoBehaviour
     private PickupPinkBox pickupCube;
     private GameObject camera;
     private GameObject shotNextFrame = null;
-    private const float InitialImpulseStrenght = 45;
+    private const float InitialImpulseStrenght = 30;
     private float impulseStrenth = InitialImpulseStrenght;
-    private const float impulseStrenthSpeed = 5f;
+    private const float impulseStrenthSpeed = 15f;
     private bool isShooting = false;
     private Text impulseUIText;
 
@@ -19,6 +19,7 @@ public class ShootCube : MonoBehaviour
         pickupCube = gameObject.GetComponent<PickupPinkBox>();
         camera = GameObject.FindGameObjectWithTag("Camera");
         impulseUIText = GameObject.FindGameObjectWithTag("ImpulseUI").GetComponent<Text>();
+        impulseUIText.text = "Impulse: " + impulseStrenth;
     }
 
     private void orientPlayer()
@@ -67,7 +68,10 @@ public class ShootCube : MonoBehaviour
 
         if (isShooting)
         {
-            impulseStrenth += impulseStrenthSpeed * Time.deltaTime;
+            if (impulseStrenth >= 100)
+                impulseStrenth = 100;
+            else
+                impulseStrenth += impulseStrenthSpeed * Time.deltaTime;
             updateImpulseUI();
         }
 
