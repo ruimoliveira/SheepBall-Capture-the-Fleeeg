@@ -8,7 +8,7 @@ public class ShootCube : MonoBehaviour
     private PickupPinkBox pickupCube;
     private GameObject camera;
     private GameObject shotNextFrame = null;
-    private const float InitialImpulseStrenght = 30;
+    private const float InitialImpulseStrenght = 40;
     private float impulseStrenth = InitialImpulseStrenght;
     private const float impulseStrenthSpeed = 15f;
     private bool isShooting = false;
@@ -82,7 +82,7 @@ public class ShootCube : MonoBehaviour
         if (shotNextFrame != null)
         {
             Vector3 posPlayer = gameObject.transform.position;
-            posPlayer.y += 1.5f;
+            posPlayer.y += 2.5f;
             shotNextFrame.transform.position = posPlayer;
 
             Rigidbody rbCube = shotNextFrame.GetComponent<Rigidbody>();
