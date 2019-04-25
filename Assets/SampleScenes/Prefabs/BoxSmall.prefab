@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6530820}
   - component: {fileID: 2305806}
   - component: {fileID: 5475668}
-  - component: {fileID: 80280780203202311}
+  - component: {fileID: 9200319918099760688}
   m_Layer: 0
   m_Name: BoxSmall
   m_TagString: Untagged
@@ -109,7 +109,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &80280780203202311
+--- !u!114 &9200319918099760688
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,3 +122,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sheep_transform: {fileID: 432898}
+  rigidbody: {fileID: 5475668}
