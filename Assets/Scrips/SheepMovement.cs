@@ -6,9 +6,9 @@ public class SheepMovement : MonoBehaviour
 {
     public Transform sheep_transform;
     public Rigidbody rigidbody;
-    private int state = (int) State.Ready;
+    private int state = (int) State.Available;
 
-    enum State { Ready, Busy };
+    enum State { Available, Moving, Unavailable };
 
     private const float stepSize = 0.25f;
 
@@ -22,25 +22,27 @@ public class SheepMovement : MonoBehaviour
     void FixedUpdate()
     {
 
-
-        //rigidbody.AddForce(new Vector3(50, 0, 0), ForceMode.Acceleration);
-
-        /*timeUntilUpdate -= 1;
-
-        if(timeUntilUpdate <= 0){
-            sheep_transform.position = sheep_transform.position + new Vector3(stepSize,0f,0f);
-            timeUntilUpdate = refreshRate;
-        }*/
     }
 
-    public void move()
+    public IEnumerator move()
     {
-        Debug.Log("called move");
+        Debug.Log("called move " + this);
+
+        state = (int) State.Moving;
+
+        float x_force = Random.Range(-15.0f, 15.0f);
+        float z_force = Random.Range(-15.0f, 15.0f);
+        float stop_time = Random.Range(2f, 4f);
+
+        rigidbody.AddForce(x_force, 0.0f, z_force, ForceMode.Impulse);
+
+        yield return new WaitForSeconds(stop_time); // Number of seconds this sheep will wait until it can move again
+
+        state = (int) State.Available;
     }
 
     public int getState()
     {
         return state;
     }
-
 }

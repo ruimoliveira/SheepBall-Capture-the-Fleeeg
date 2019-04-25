@@ -1,15 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Threading;
 using UnityEngine;
 
 public class SheepAI : MonoBehaviour
 { 
     private List<GameObject> sheeps = new List<GameObject>();
+    private List<GameObject> available_sheeps = new List<GameObject>();
+
     private float timer = TIME_BETWEEN_MOVEMENT;
 
-    enum State { Ready, Busy };
-    private const float TIME_BETWEEN_MOVEMENT = 2f;
+    enum State { Available, Moving, Unavailable };
+    private const float TIME_BETWEEN_MOVEMENT = 1f;
 
     // Start is called before the first frame update
     void Start()
@@ -33,30 +36,40 @@ public class SheepAI : MonoBehaviour
     void updateSheeps()
     {
         sheeps.Clear();
+        available_sheeps.Clear();
         foreach (Transform child in transform)
         {
-            sheeps.Add(child.gameObject);
+            var sheep = child.gameObject;
+            sheeps.Add(sheep);
+
+            if (sheep.GetComponent<SheepMovement>().getState() == (int) State.Available)
+            {
+                available_sheeps.Add(sheep);
+            }
         }
     }
 
     void moveSheeps()
     {
+        int numSheepsToMove = getNumSheepsToMove(available_sheeps.Count);  //get the number of sheep to move based on ammount of available sheeps
 
-        int numSheepsToMove = getNumSheepsToMove(sheeps.Count);  //get the number of sheeps to move based on the total ammount of sheeps in play
-        List<int> randomSheepIndexes = calculateRandomIndexes(numSheepsToMove);
+        if (numSheepsToMove == -1)
+        {
+            Debug.Log("No available sheep to move");
+            return;
+        }
+            
+        List<int> randomSheepIndexes = calculateRandomIndexes(available_sheeps, numSheepsToMove);
 
         GameObject[] sheepsToMove = new GameObject[numSheepsToMove];
         for(int i = 0; i < numSheepsToMove; i++)
-            sheepsToMove[i] = sheeps[randomSheepIndexes[i]];
+            sheepsToMove[i] = available_sheeps[randomSheepIndexes[i]];
 
         foreach (GameObject sheep in sheepsToMove)
         {
             var sheep_script = sheep.GetComponent<SheepMovement>();
 
-            //TO DO: definir 3 variavieis direcao, distancia e tempo parado
-            //passar ao move as 3 variaveis
-
-            sheep_script.move();
+            StartCoroutine(sheep_script.move());
         }
     }
 
@@ -67,10 +80,12 @@ public class SheepAI : MonoBehaviour
 
     int getNumSheepsToMove(int totalSheeps)
     {
-        return 2; //TO DO (% of total Sheeps)
+        if (totalSheeps < 2)
+            return -1;
+        return 2; //TO DO (% of total Sheeps + random factor)
     }
 
-    List<int> calculateRandomIndexes(int numSheepsToMove)
+    List<int> calculateRandomIndexes(List<GameObject> available_sheeps, int numSheepsToMove)
     {
         List<int> randomIndexes = new List<int>();
         System.Random rnd = new System.Random();
@@ -80,7 +95,7 @@ public class SheepAI : MonoBehaviour
             int number;
             do
             {
-                number = rnd.Next(0, sheeps.Count);
+                number = rnd.Next(0, available_sheeps.Count);
             }
             while (randomIndexes.Contains(number));
 
@@ -89,8 +104,6 @@ public class SheepAI : MonoBehaviour
 
         return randomIndexes;
     }
-
-
 
     /*bool hasValue(int[] array, int value)
     {
