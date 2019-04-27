@@ -11,6 +11,8 @@ public class PickupPinkBox : MonoBehaviour
     string pinkBoxTag = "PinkBox";
     ThirdPersonUserControl userControls;
 
+    enum State { Available, Moving, Unavailable, Scared };
+
     public Stack<GameObject> getCubeStack()
     {
         return pinkBoxStackPickedUp;
@@ -39,7 +41,9 @@ public class PickupPinkBox : MonoBehaviour
         Debug.Log(colligingWithBoxSem + "TRIGGER COLLIDED WITH " + other.tag);
         if (pinkBoxTag == other.tag)
         {
-            pinkBoxCollided.Push(other.gameObject);
+            var sheep = other.gameObject;
+            pinkBoxCollided.Push(sheep);
+
             colligingWithBoxSem ++;
         }
     }
@@ -80,6 +84,7 @@ public class PickupPinkBox : MonoBehaviour
             return null;
 
         GameObject pinkBoxDrop = pinkBoxStackPickedUp.Pop();
+        pinkBoxDrop.GetComponent<SheepMovement>().setState((int)State.Available);
         changePlayerSpeed();
 
         Rigidbody rb = pinkBoxDrop.GetComponent<Rigidbody>();
@@ -99,6 +104,7 @@ public class PickupPinkBox : MonoBehaviour
         GameObject pinkBox = pinkBoxCollided.Pop(); pinkBoxCollided.Push(pinkBox);
 
         pinkBoxStackPickedUp.Push(pinkBox);
+        pinkBox.GetComponent<SheepMovement>().setState((int)State.Unavailable);
         changePlayerSpeed();
 
         Rigidbody rb = pinkBox.GetComponent<Rigidbody>();
