@@ -13,6 +13,7 @@ public class ShootCube : MonoBehaviour
     private const float impulseStrenthSpeed = 20f;
     private bool isShooting = false;
     private Text impulseUIText;
+    private Text miraUIText;
 
     private void Awake()
     {
@@ -20,6 +21,7 @@ public class ShootCube : MonoBehaviour
         camera = GameObject.FindGameObjectWithTag("Camera");
         impulseUIText = GameObject.FindGameObjectWithTag("ImpulseUI").GetComponent<Text>();
         impulseUIText.text = "Impulse: " + impulseStrenth;
+        miraUIText = GameObject.FindGameObjectWithTag("Mira").GetComponent<Text>();
     }
 
     private void orientPlayer()
@@ -29,6 +31,16 @@ public class ShootCube : MonoBehaviour
         degAng = (degAng < 0) ? (degAng + 180) : (degAng - 180);
         aux = Quaternion.Euler(0, degAng, 0);
         gameObject.transform.rotation = aux;
+    }
+
+    private void hideMira()
+    {
+        miraUIText.text = "";
+    }
+
+    private void showMira()
+    {
+        miraUIText.text = "O";
     }
 
     private void shootCube()
@@ -55,6 +67,10 @@ public class ShootCube : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
+            if (pickupCube.getCubeStack().ToArray().Length != 0)
+            {
+                showMira();
+            }
             isShooting = true;
         }
 
@@ -82,12 +98,11 @@ public class ShootCube : MonoBehaviour
 
             Rigidbody rbCube = shotNextFrame.GetComponent<Rigidbody>();
 
-            rbCube.AddRelativeForce(new Vector3(0,0,1.2f) * impulseStrenth,ForceMode.Impulse);
-
-            //rbCube.AddRelativeForce(new Vector3(0, 0, impulseStrenth), ForceMode.Impulse);
+            rbCube.AddRelativeForce(new Vector3(0,0.2f,0.6f) * impulseStrenth,ForceMode.Impulse);
 
             impulseStrenth = InitialImpulseStrenght;
             updateImpulseUI();
+            hideMira();
 
             shotNextFrame = null;
         }

@@ -15,9 +15,8 @@ public class SheepMovement : MonoBehaviour
     private const float stepSize = 0.5f;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        
     }
 
     // Update is called once per frame
@@ -69,6 +68,7 @@ public class SheepMovement : MonoBehaviour
 
         if (state == (int)State.Scared) // the state might be Unavaible if it was picked up while moving
             state = (int)State.Available;
+
     }
 
     public int getState()
