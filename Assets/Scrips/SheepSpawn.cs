@@ -30,8 +30,7 @@ public class SheepSpawn : MonoBehaviour
     void SpawnNewSheep()
     {
         // TODO: SPAWN SHEEP
-        if (SheepAmountBelowThreshold())
-            StartTimer();
+        StartTimer();
     }
 
     void DecreaseTimer(float elapsedTime)

@@ -12,7 +12,7 @@ public class SheepMovement : MonoBehaviour
 
     enum State { Available, Moving, Unavailable, Scared};
 
-    private const float stepSize = 0.5f;
+    private const float stepSize = 0.25f;
 
     // Start is called before the first frame update
     void Awake()
@@ -37,7 +37,7 @@ public class SheepMovement : MonoBehaviour
         //rigidbody.AddForce(x_force, 0.0f, z_force, ForceMode.Impulse);
         targetDestination = sheep_transform.position + displacement;
 
-        float stop_time = Random.Range(2f, 4f);
+        float stop_time = Random.Range(4f, 6f);
 
         yield return new WaitForSeconds(stop_time); // Number of seconds this sheep will wait until it can move again
 
