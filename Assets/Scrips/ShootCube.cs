@@ -33,19 +33,17 @@ public class ShootCube : MonoBehaviour
 
     private void shootCube()
     {
-
-        GameObject cube = pickupCube.removePinkCube();
-        if (cube == null)
+        if (pickupCube.getCubeStack().ToArray().Length == 0)
         {
             impulseStrenth = InitialImpulseStrenght;
             updateImpulseUI();
+            return;
         }
-        else
-        {
-            shotNextFrame = cube;
-            orientPlayer();
-            pickupCube.updatePinkBoxRotations();
-        }
+
+        orientPlayer();
+        pickupCube.updatePinkBoxRotations();
+        GameObject cube = pickupCube.removePinkCube();
+        shotNextFrame = cube;
     }
 
     private void updateImpulseUI()
@@ -81,12 +79,12 @@ public class ShootCube : MonoBehaviour
     {
         if (shotNextFrame != null)
         {
-            Vector3 posPlayer = gameObject.transform.position;
-            posPlayer.y += 2.5f;
-            shotNextFrame.transform.position = posPlayer;
 
             Rigidbody rbCube = shotNextFrame.GetComponent<Rigidbody>();
-            rbCube.AddRelativeForce(new Vector3(0, 0, impulseStrenth), ForceMode.Impulse);
+
+            rbCube.AddRelativeForce(new Vector3(0,0,1) * impulseStrenth,ForceMode.Impulse);
+
+            //rbCube.AddRelativeForce(new Vector3(0, 0, impulseStrenth), ForceMode.Impulse);
 
             impulseStrenth = InitialImpulseStrenght;
             updateImpulseUI();

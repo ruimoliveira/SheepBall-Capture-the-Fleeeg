@@ -23,10 +23,8 @@ public class PickupPinkBox : MonoBehaviour
         pinkBoxCollided = new Stack<GameObject>();
     }
 
-    // Start is called before the first frame update
     void Start()
     {
-
         GameObject[] allPinkBoxes = GameObject.FindGameObjectsWithTag(pinkBoxTag);
         foreach (GameObject pinkboxAux in allPinkBoxes)
         {
