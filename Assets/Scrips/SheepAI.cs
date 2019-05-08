@@ -12,7 +12,7 @@ public class SheepAI : MonoBehaviour
 
     private float timer = TIME_BETWEEN_MOVEMENT;
 
-    enum State { Available, Moving, Unavailable, Scared };
+    enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
     private const float TIME_BETWEEN_MOVEMENT = 1f;
 
     // Start is called before the first frame update
@@ -81,12 +81,14 @@ public class SheepAI : MonoBehaviour
 
             var sheep_script = sheep.GetComponent<SheepMovement>();
 
-            if (sheep_script.getState() != (int)State.Unavailable
-                && sheep_script.getState() != (int)State.Scared
-                && distance < 6)
+            if (sheep_script.getState() != (int)State.Unavailable && distance < 6)
             {
                 var opposite_direction = sheep.transform.position - player.transform.position;
-                StartCoroutine(sheep_script.scare(opposite_direction));
+                sheep_script.scare(opposite_direction);
+            }
+            else if(sheep_script.getState() == (int)State.Scared && distance >= 6)
+            {
+                sheep_script.unscare();
             }
         }
     }

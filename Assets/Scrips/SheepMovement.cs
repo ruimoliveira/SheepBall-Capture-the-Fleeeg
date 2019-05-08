@@ -8,11 +8,13 @@ public class SheepMovement : MonoBehaviour
     public Rigidbody rigidbody;
     private int state = (int) State.Available;
     private Vector3 targetDestination;
-    private float velocity = 0.5f;
+    private Quaternion targetRotation;
+    private float rotationSpeed = 50f;
+    private float movingSpeed = 5f;
+    private float scaredRotationSpeed= 100f;
+    private float scaredMovingSpeed = 2f;
 
-    enum State { Available, Moving, Unavailable, Scared};
-
-    private const float stepSize = 0.25f;
+    enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
 
     // Start is called before the first frame update
     void Awake()
@@ -22,53 +24,70 @@ public class SheepMovement : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        var speed = velocity * Time.deltaTime;
-        sheep_transform.position = Vector3.Lerp(sheep_transform.position, targetDestination, speed);
+        if (state == (int)State.Rotating)
+        {
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+            float angle = Quaternion.Angle(transform.rotation, targetRotation);
+            if (angle == 0)
+                state = (int)State.Moving;
+        }
+
+        if (state == (int)State.Moving)
+        {
+            sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, movingSpeed * Time.fixedDeltaTime);
+            if (Vector3.Distance(sheep_transform.position, targetDestination) < 0.001f)
+                state = (int)State.Waiting;
+        }
+
+        if (state == (int)State.Scared)
+        {
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, scaredRotationSpeed * Time.fixedDeltaTime);
+            sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, scaredMovingSpeed * Time.fixedDeltaTime);
+        }
     }
 
     public IEnumerator move()
     {
-        state = (int) State.Moving;
-
         float x_displace = Random.Range(-10.0f, 10.0f);
         float z_displace = Random.Range(-10.0f, 10.0f);
         Vector3 displacement = new Vector3(x_displace, 0f, z_displace);
 
-        //rigidbody.AddForce(x_force, 0.0f, z_force, ForceMode.Impulse);
         targetDestination = sheep_transform.position + displacement;
+        targetRotation = Quaternion.LookRotation(targetDestination - sheep_transform.position);
+
+        state = (int)State.Rotating;
+        yield return new WaitUntil(() => state == (int)State.Moving); //wait until rotation finishes
+
+        state = (int)State.Moving;
+        yield return new WaitUntil(() => state == (int)State.Waiting); //wait until movement finishes
 
         float stop_time = Random.Range(4f, 6f);
-
-        yield return new WaitForSeconds(stop_time); // Number of seconds this sheep will wait until it can move again
-
-        if(state == (int)State.Moving) // the state might be Unavaible if it was picked up while moving
+        yield return new WaitForSeconds(stop_time); // Number of seconds this sheep will wait after it completed its movement, before being able to move again
+        if (state == (int)State.Waiting) // the state might be Unavaible if it was picked up while moving
             state = (int)State.Available;
     }
 
-    public IEnumerator scare(Vector3 direction)//TO DO: test + change to continuous movement
+    public void scare(Vector3 direction)//TO DO: test + change to continuous movement
     {
-        state = (int)State.Scared;
-
         float magnitude = Mathf.Sqrt((direction.x * direction.x) + (direction.z * direction.z));
 
         float x_normalized = direction.x / magnitude; 
         float z_normalized = direction.z / magnitude;
 
-        float x_intensity = 4f;
-        float z_intensity = 4f;
+        float x_intensity = 2f;
+        float z_intensity = 2f;
 
         Vector3 displacement = new Vector3(x_intensity * x_normalized, 0.0f, z_intensity * z_normalized);
 
         targetDestination = sheep_transform.position + displacement;
-        //rigidbody.AddForce(x_intensity * x_normalized, 0.0f, z_intensity * z_normalized, ForceMode.Impulse);
+        targetRotation = Quaternion.LookRotation(targetDestination - sheep_transform.position);
 
-        float stop_time = 0.25f;
+        state = (int)State.Scared;
+    }
 
-        yield return new WaitForSeconds(stop_time); // Number of seconds this sheep will wait until it can move again
-
-        if (state == (int)State.Scared) // the state might be Unavaible if it was picked up while moving
-            state = (int)State.Available;
-
+    public void unscare()
+    {
+        state = (int)State.Available;
     }
 
     public int getState()
