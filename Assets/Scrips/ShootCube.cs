@@ -35,6 +35,7 @@ public class ShootCube : MonoBehaviour
 
     private void hideMira()
     {
+        Debug.Log("asdasd");
         miraUIText.text = "";
     }
 
