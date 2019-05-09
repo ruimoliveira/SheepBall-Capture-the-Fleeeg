@@ -98,7 +98,7 @@ public class ShootCube : MonoBehaviour
 
             Rigidbody rbCube = shotNextFrame.GetComponent<Rigidbody>();
 
-            rbCube.AddRelativeForce(new Vector3(0,0.2f,0.6f) * impulseStrenth,ForceMode.Impulse);
+            rbCube.AddRelativeForce(new Vector3(0,0.1f,0.6f) * impulseStrenth,ForceMode.Impulse);
 
             impulseStrenth = InitialImpulseStrenght;
             updateImpulseUI();

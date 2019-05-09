@@ -53,7 +53,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
             if (movBack)
             {
-                m_Animator.SetFloat("Direction", -0.5f);
+                m_Animator.SetFloat("Direction", -0.75f);
                 move = backMovVec;
             }
             else
