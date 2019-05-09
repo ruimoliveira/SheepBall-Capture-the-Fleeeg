@@ -142,13 +142,13 @@ public class PickupPinkBox : MonoBehaviour
             switch (index++)
             {
                 case 0:
-                    newV.y += 2;
+                    newV.y += 1.27f;
                     break;
                 case 1:
-                    newV.x += 1.5f;
+                    newV.x += 1f;
                     break;
                 case 2:
-                    newV.x -= 1.5f;
+                    newV.x -= 1f;
                     break;
             }
             pB.transform.position = newV;

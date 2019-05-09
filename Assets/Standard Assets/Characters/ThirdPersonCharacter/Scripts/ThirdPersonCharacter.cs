@@ -43,21 +43,25 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		}
 
 
-		public void Move(Vector3 move, bool crouch, bool jump, bool stoppedMov)
-		{
+        public void Move(Vector3 move, bool crouch, bool jump, bool stoppedMov)
+        {
 
 			// convert the world relative moveInput vector into a local-relative
 			// turn amount and forward amount required to head in the desired
 			// direction.
-			if (move.magnitude > 1f) move.Normalize();
-			move = transform.InverseTransformDirection(move);
-			CheckGroundStatus();
-			move = Vector3.ProjectOnPlane(move, m_GroundNormal);
-            m_TurnAmount = Mathf.Atan2(move.x, move.z)* Mathf.Rad2Deg;
             
-			m_ForwardAmount = !stoppedMov ? move.z : 0;
+            if (move.magnitude > 1f) move.Normalize();
+            move = transform.InverseTransformDirection(move);
+            CheckGroundStatus();
+            move = Vector3.ProjectOnPlane(move, m_GroundNormal);
+            m_TurnAmount = Mathf.Atan2(move.x, move.z);
 
-			ApplyExtraTurnRotation();
+
+            m_TurnAmount *= Mathf.Rad2Deg;
+
+            m_ForwardAmount = !stoppedMov ? move.z : 0;
+
+            ApplyExtraTurnRotation();
 
 			// control and velocity handling is different when grounded and airborne:
 			if (m_IsGrounded)
@@ -118,8 +122,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 		void UpdateAnimator(Vector3 move)
 		{
-			// update the animator parameters
-			m_Animator.SetFloat("Forward", m_ForwardAmount, 0.1f, Time.deltaTime);
+            // update the animator parameters
+            m_Animator.SetFloat("Forward", m_ForwardAmount, 0.1f, Time.deltaTime);
 			//m_Animator.SetFloat("Turn", m_TurnAmount, 0.1f, Time.deltaTime);
 			m_Animator.SetBool("Crouch", m_Crouching);
 			m_Animator.SetBool("OnGround", m_IsGrounded);
@@ -145,12 +149,13 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 			if (m_IsGrounded && move.magnitude > 0)
 			{
 				m_Animator.speed = m_AnimSpeedMultiplier;
-			}
+            }
 			else
 			{
 				// don't use that while airborne
 				m_Animator.speed = 1;
-			}
+            }
+            
 		}
 
 

@@ -13,7 +13,7 @@ public class ShootCube : MonoBehaviour
     private const float impulseStrenthSpeed = 20f;
     private bool isShooting = false;
     private Text impulseUIText;
-    private Text miraUIText;
+    private Image miraUIText;
 
     private void Awake()
     {
@@ -21,7 +21,7 @@ public class ShootCube : MonoBehaviour
         camera = GameObject.FindGameObjectWithTag("Camera");
         impulseUIText = GameObject.FindGameObjectWithTag("ImpulseUI").GetComponent<Text>();
         impulseUIText.text = "Impulse: " + impulseStrenth;
-        miraUIText = GameObject.FindGameObjectWithTag("Mira").GetComponent<Text>();
+        miraUIText = GameObject.FindGameObjectWithTag("Mira").GetComponent<Image>();
     }
 
     private void orientPlayer()
@@ -35,13 +35,12 @@ public class ShootCube : MonoBehaviour
 
     private void hideMira()
     {
-        Debug.Log("asdasd");
-        miraUIText.text = "";
+        miraUIText.enabled = false;
     }
 
     private void showMira()
     {
-        miraUIText.text = "O";
+        miraUIText.enabled = true;
     }
 
     private void shootCube()
