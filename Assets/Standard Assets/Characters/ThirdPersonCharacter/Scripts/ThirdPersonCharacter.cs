@@ -33,7 +33,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		void Start()
 		{
 			m_Animator = GetComponent<Animator>();
-			m_Rigidbody = GetComponent<Rigidbody>();
+
+            m_Rigidbody = GetComponent<Rigidbody>();
 			m_Capsule = GetComponent<CapsuleCollider>();
 			m_CapsuleHeight = m_Capsule.height;
 			m_CapsuleCenter = m_Capsule.center;
@@ -43,13 +44,24 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		}
 
 
-        public void Move(Vector3 move, bool crouch, bool jump, bool stoppedMov)
+        public void Move(Vector3 move, bool crouch, bool jump, bool stoppedMov, Vector3 backMovVec, bool movBack = false)
         {
 
-			// convert the world relative moveInput vector into a local-relative
-			// turn amount and forward amount required to head in the desired
-			// direction.
-            
+            // convert the world relative moveInput vector into a local-relative
+            // turn amount and forward amount required to head in the desired
+            // direction.
+
+            if (movBack)
+            {
+                m_Animator.SetFloat("Direction", -0.5f);
+                move = backMovVec;
+            }
+            else
+            {
+                m_Animator.SetFloat("Direction", 1.0f);
+            }
+
+
             if (move.magnitude > 1f) move.Normalize();
             move = transform.InverseTransformDirection(move);
             CheckGroundStatus();
