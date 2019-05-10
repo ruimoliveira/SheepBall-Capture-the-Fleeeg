@@ -115,7 +115,7 @@ public class PickupPinkBox : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            if (0 < colligingWithBoxSem && pinkBoxStackPickedUp.ToArray().Length < 4)
+            if (0 < colligingWithBoxSem && pinkBoxStackPickedUp.ToArray().Length < 3)
             {
                 pickupBox();
             }

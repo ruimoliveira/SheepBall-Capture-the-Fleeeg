@@ -88,7 +88,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
                 m_Move = v*Vector3.forward + h*Vector3.right;
             }
 
-            m_Move *= walkspeedMult;
+            //m_Move *= walkspeedMult;
+            //m_MoveBack *= walkspeedMult;
 
             if (stoppedMov)
             {
@@ -102,7 +103,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 #endif
 
             // pass all parameters to the character control script
-            m_Character.Move(m_Move, crouch, m_Jump, stoppedMov, m_MoveBack, v < 0);
+            m_Character.Move(m_Move, walkspeedMult, crouch, m_Jump, stoppedMov, m_MoveBack, v < 0);
             m_Jump = false;
         }
     }
