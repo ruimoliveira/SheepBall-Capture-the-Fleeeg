@@ -4,29 +4,40 @@ using UnityEngine;
 
 public class SheepSpawn : MonoBehaviour
 {
-    const string NEUTRAL_SHEEP_TAG = "PinkBox"; // MUDAR PARA 'neutral'
+    const string NEUTRAL_SHEEP_TAG = "NeutralSheep";
     const string SPAWN_AREA_NAME = "SpawnArea";
     const int MAX_NEUTRAL_SHEEP = 5;
-    const float SPAWN_COOLDOWN = 15.0f; // seconds
-
+    const float SPAWN_COOLDOWN = 3.0f; // seconds
+    //TODO: REGISTER PREFAB ON THE CODE AND NOT ON THE SCENE
     public GameObject sheepPrefab;
 
+    private Vector2 SPAWN_AREA_X_RANGE;
+    private Vector2 SPAWN_AREA_Z_RANGE;
     private float spawnTimer = 0.0f;
     private bool spawnReady = true;
 
     // Start is called before the first frame update
     void Start()
     {
+        // Calculte sheep spawn area limits
+
         GameObject spawnArea = GameObject.Find(SPAWN_AREA_NAME);
+
         Vector3 spawnBaseSize = spawnArea.GetComponent<MeshFilter>().mesh.bounds.size;
         Vector3 spawnScale = spawnArea.transform.localScale;
-        Vector3 spawnSize = new Vector3(spawnBaseSize.x * spawnScale.x, 0, spawnBaseSize.z * spawnScale.z);
+        Vector3 spawnHalfSize = new Vector3((spawnBaseSize.x * spawnScale.x)/2, 0, (spawnBaseSize.z * spawnScale.z)/2);
 
-        Vector3 spawnCenter = spawnArea.transform.position;
+        Vector3 spawnAreaPosition = spawnArea.transform.position;
+
+        this.SPAWN_AREA_X_RANGE = new Vector2(spawnAreaPosition.x - spawnHalfSize.x, spawnAreaPosition.x + spawnHalfSize.x);
+        this.SPAWN_AREA_Z_RANGE = new Vector2(spawnAreaPosition.z - spawnHalfSize.z, spawnAreaPosition.z + spawnHalfSize.z);
+
         Debug.Log("SPAWN BASE SIZE" + spawnBaseSize.ToString());
         Debug.Log("SPAWN SCALE" + spawnScale.ToString());
-        Debug.Log("SPAWN REAL SIZE" + spawnSize.ToString());
-        Debug.Log("SPAWN CENTER" + spawnCenter.ToString());
+        Debug.Log("SPAWN REAL SIZE" + spawnHalfSize.ToString());
+        Debug.Log("SPAWN CENTER" + spawnAreaPosition);
+        Debug.Log("SPAWN X RANGE" + SPAWN_AREA_X_RANGE[0]);
+        Debug.Log("SPAWN Z RANGE" + SPAWN_AREA_Z_RANGE[1]);
         //Debug.Log(spawnLimits[0]);
     }
 
@@ -39,16 +50,17 @@ public class SheepSpawn : MonoBehaviour
             return;
         }
 
-        //TODO: START TIMER WHEN SHEEP GETS CAPTURED
         if (SheepAmountBelowThreshold() && this.spawnReady)
             SpawnNewSheep();
     }
 
     void SpawnNewSheep()
     {
-        // TODO: SPAWN SHEEP
-        Instantiate(this.sheepPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-
+        float randomX = Random.Range(SPAWN_AREA_X_RANGE[0], SPAWN_AREA_X_RANGE[1]);
+        float randomZ = Random.Range(SPAWN_AREA_Z_RANGE[0], SPAWN_AREA_Z_RANGE[1]);
+        Vector3 spawnPosition = new Vector3(randomX, 0.001f, randomZ);
+        Instantiate(this.sheepPrefab, spawnPosition, Quaternion.identity);
+        Debug.Log("SHEEP SPAWNED AT POS" + spawnPosition.ToString());
         StartTimer();
     }
 
