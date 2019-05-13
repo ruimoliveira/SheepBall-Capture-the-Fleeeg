@@ -17,13 +17,14 @@ public class SheepSpawn : MonoBehaviour
 
     private GameObject sheepPrefab;
     private GameObject sheepCollection;
+    private GameObject[] players;
 
     // Start is called before the first frame update
     void Start()
     {   
         this.sheepPrefab = (GameObject) AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Sheep.prefab", typeof(GameObject));
         this.sheepCollection = GameObject.Find("/Sheep");
-
+        this.players = GameObject.FindGameObjectsWithTag("Player");
         // Calculte sheep spawn area limits
         GameObject spawnArea = GameObject.Find(SPAWN_AREA_NAME);
 
@@ -69,7 +70,10 @@ public class SheepSpawn : MonoBehaviour
         newSheep.name = "Sheep" + this.sheepCollection.transform.childCount;
         newSheep.tag = NEUTRAL_SHEEP_TAG;
 
-        // Physics.IgnoreCollision(pinkboxAux.GetComponent<Collider>(), GetComponent<Collider>());   - SOMETHING LIKE THIs TO AVOID COLLISION WITH PLAYER
+        foreach (GameObject player in this.players)
+        {
+            Physics.IgnoreCollision(newSheep.GetComponent<Collider>(), player.GetComponent<Collider>()); // Ignore collision with player
+        }
 
         Debug.Log("SHEEP SPAWNED AT POS" + spawnPosition.ToString());
         StartTimer();
