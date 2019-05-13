@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 7594166734615525815}
   m_Layer: 0
   m_Name: Sheep
-  m_TagString: NeutralSheep
+  m_TagString: PinkBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

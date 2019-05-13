@@ -1,26 +1,30 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class SheepSpawn : MonoBehaviour
 {
-    const string NEUTRAL_SHEEP_TAG = "NeutralSheep";
+    const string NEUTRAL_SHEEP_TAG = "PinkBox"; // CHANGE TAG WHEN OTHER SCRIPTS ADMIT "NeutralSheep" TAG
     const string SPAWN_AREA_NAME = "SpawnArea";
-    const int MAX_NEUTRAL_SHEEP = 5;
+    const int MAX_NEUTRAL_SHEEP = 10;
     const float SPAWN_COOLDOWN = 3.0f; // seconds
-    //TODO: REGISTER PREFAB ON THE CODE AND NOT ON THE SCENE
-    public GameObject sheepPrefab;
 
     private Vector2 SPAWN_AREA_X_RANGE;
     private Vector2 SPAWN_AREA_Z_RANGE;
     private float spawnTimer = 0.0f;
     private bool spawnReady = true;
 
+    private GameObject sheepPrefab;
+    private GameObject sheepCollection;
+
     // Start is called before the first frame update
     void Start()
-    {
-        // Calculte sheep spawn area limits
+    {   
+        this.sheepPrefab = (GameObject) AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Sheep.prefab", typeof(GameObject));
+        this.sheepCollection = GameObject.Find("/Sheep");
 
+        // Calculte sheep spawn area limits
         GameObject spawnArea = GameObject.Find(SPAWN_AREA_NAME);
 
         Vector3 spawnBaseSize = spawnArea.GetComponent<MeshFilter>().mesh.bounds.size;
@@ -59,7 +63,14 @@ public class SheepSpawn : MonoBehaviour
         float randomX = Random.Range(SPAWN_AREA_X_RANGE[0], SPAWN_AREA_X_RANGE[1]);
         float randomZ = Random.Range(SPAWN_AREA_Z_RANGE[0], SPAWN_AREA_Z_RANGE[1]);
         Vector3 spawnPosition = new Vector3(randomX, 0.1f, randomZ);
-        Instantiate(this.sheepPrefab, spawnPosition, Quaternion.identity);
+        GameObject newSheep = Instantiate(this.sheepPrefab, spawnPosition, Quaternion.identity);
+
+        newSheep.transform.SetParent(this.sheepCollection.transform);
+        newSheep.name = "Sheep" + this.sheepCollection.transform.childCount;
+        newSheep.tag = NEUTRAL_SHEEP_TAG;
+
+        // Physics.IgnoreCollision(pinkboxAux.GetComponent<Collider>(), GetComponent<Collider>());   - SOMETHING LIKE THIs TO AVOID COLLISION WITH PLAYER
+
         Debug.Log("SHEEP SPAWNED AT POS" + spawnPosition.ToString());
         StartTimer();
     }
