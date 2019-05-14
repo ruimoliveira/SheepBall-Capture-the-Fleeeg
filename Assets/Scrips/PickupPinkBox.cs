@@ -131,6 +131,7 @@ public class PickupPinkBox : MonoBehaviour
 
     public void updatePinkBoxRotations()
     {
+        if (pinkBoxStackPickedUp == null) return;
         int index = 0;
         GameObject[] arrPinkBoxes = pinkBoxStackPickedUp.ToArray();
         foreach (GameObject pB in arrPinkBoxes)
