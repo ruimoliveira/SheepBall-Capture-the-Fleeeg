@@ -9,6 +9,7 @@ TagManager:
   - Score
   - ImpulseUI
   - Mira
+  - NeutralSheep
   layers:
   - Default
   - TransparentFX

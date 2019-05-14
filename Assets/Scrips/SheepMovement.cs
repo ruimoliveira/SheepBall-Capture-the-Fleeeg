@@ -15,7 +15,7 @@ public class SheepMovement : MonoBehaviour
     private float scaredMovingSpeed = 2f;
 
     enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
-
+    
     private Animator m_animator;
 
     // Start is called before the first frame update
@@ -26,7 +26,7 @@ public class SheepMovement : MonoBehaviour
     }
 
     int prevState = -1;
-
+    
     // Update is called once per frame
     void FixedUpdate()
     {
