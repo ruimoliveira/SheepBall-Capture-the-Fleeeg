@@ -8,7 +8,7 @@ public class PickupPinkBox : MonoBehaviour
     int colligingWithBoxSem = 0;
     Stack<GameObject> pinkBoxCollided;
     Stack<GameObject> pinkBoxStackPickedUp;
-    string pinkBoxTag = "PinkBox";
+    string pinkBoxTag = "NeutralSheep";
     ThirdPersonUserControl userControls;
 
     enum State { Available, Moving, Unavailable, Scared };

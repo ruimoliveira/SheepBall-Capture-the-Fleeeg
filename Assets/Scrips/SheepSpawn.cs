@@ -5,13 +5,9 @@ using UnityEngine;
 
 public class SheepSpawn : MonoBehaviour
 {
-    const string NEUTRAL_SHEEP_TAG = "PinkBox"; // CHANGE TAG WHEN OTHER SCRIPTS ADMIT "NeutralSheep" TAG
-    const string SPAWN_AREA_NAME = "SpawnArea";
-    const int MAX_NEUTRAL_SHEEP = 10;
-    const float SPAWN_COOLDOWN = 3.0f; // seconds
-
     private Vector2 SPAWN_AREA_X_RANGE;
     private Vector2 SPAWN_AREA_Z_RANGE;
+
     private float spawnTimer = 0.0f;
     private bool spawnReady = true;
 
@@ -20,33 +16,16 @@ public class SheepSpawn : MonoBehaviour
     private GameObject[] players;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {   
         this.sheepPrefab = (GameObject) AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Sheep.prefab", typeof(GameObject));
         this.sheepCollection = GameObject.Find("/Sheep");
         this.players = GameObject.FindGameObjectsWithTag("Player");
 
-        // Calculte sheep spawn area limits
-        GameObject spawnArea = GameObject.Find(SPAWN_AREA_NAME);
-
-        Vector3 spawnBaseSize = spawnArea.GetComponent<MeshFilter>().mesh.bounds.size;
-        Vector3 spawnScale = spawnArea.transform.localScale;
-        Vector3 spawnHalfSize = new Vector3((spawnBaseSize.x * spawnScale.x)/2, 0, (spawnBaseSize.z * spawnScale.z)/2);
-
-        Vector3 spawnAreaPosition = spawnArea.transform.position;
-
-        this.SPAWN_AREA_X_RANGE = new Vector2(spawnAreaPosition.x - spawnHalfSize.x, spawnAreaPosition.x + spawnHalfSize.x);
-        this.SPAWN_AREA_Z_RANGE = new Vector2(spawnAreaPosition.z - spawnHalfSize.z, spawnAreaPosition.z + spawnHalfSize.z);
-
-        Debug.Log("SPAWN BASE SIZE" + spawnBaseSize.ToString());
-        Debug.Log("SPAWN SCALE" + spawnScale.ToString());
-        Debug.Log("SPAWN REAL SIZE" + spawnHalfSize.ToString());
-        Debug.Log("SPAWN CENTER" + spawnAreaPosition);
-        Debug.Log("SPAWN X RANGE" + SPAWN_AREA_X_RANGE[0]);
-        Debug.Log("SPAWN Z RANGE" + SPAWN_AREA_Z_RANGE[1]);
+        CalculateSpawnLimits();
 
         // Spawn initial sheep
-        for(int i = 1; i <= MAX_NEUTRAL_SHEEP; i++)
+        for (int i = 1; i <= Constants.MAX_NEUTRAL_SHEEP; i++)
         {
             SpawnNewSheep();
         }
@@ -74,7 +53,7 @@ public class SheepSpawn : MonoBehaviour
 
         newSheep.transform.SetParent(this.sheepCollection.transform);
         newSheep.name = "Sheep" + this.sheepCollection.transform.childCount;
-        newSheep.tag = NEUTRAL_SHEEP_TAG;
+        newSheep.tag = Constants.NEUTRAL_SHEEP_TAG;
 
         foreach (GameObject player in this.players)
         {
@@ -95,12 +74,31 @@ public class SheepSpawn : MonoBehaviour
 
     void StartTimer()
     {
-        this.spawnTimer = SPAWN_COOLDOWN;
+        this.spawnTimer = Constants.SPAWN_COOLDOWN;
         this.spawnReady = false;
     }
 
     bool SheepAmountBelowThreshold()
     {
-        return GameObject.FindGameObjectsWithTag(NEUTRAL_SHEEP_TAG).Length < MAX_NEUTRAL_SHEEP;
+        return GameObject.FindGameObjectsWithTag(Constants.NEUTRAL_SHEEP_TAG).Length < Constants.MAX_NEUTRAL_SHEEP;
+    }
+
+    void CalculateSpawnLimits()
+    {
+        Vector3 spawnBaseSize = GetComponent<MeshFilter>().mesh.bounds.size;
+        Vector3 spawnScale = transform.localScale;
+        Vector3 spawnHalfSize = new Vector3((spawnBaseSize.x * spawnScale.x) / 2, 0, (spawnBaseSize.z * spawnScale.z) / 2);
+
+        Vector3 spawnAreaPosition = transform.position;
+
+        this.SPAWN_AREA_X_RANGE = new Vector2(spawnAreaPosition.x - spawnHalfSize.x, spawnAreaPosition.x + spawnHalfSize.x);
+        this.SPAWN_AREA_Z_RANGE = new Vector2(spawnAreaPosition.z - spawnHalfSize.z, spawnAreaPosition.z + spawnHalfSize.z);
+
+        Debug.Log("SPAWN BASE SIZE" + spawnBaseSize.ToString());
+        Debug.Log("SPAWN SCALE" + spawnScale.ToString());
+        Debug.Log("SPAWN REAL SIZE" + spawnHalfSize.ToString());
+        Debug.Log("SPAWN CENTER" + spawnAreaPosition);
+        Debug.Log("SPAWN X RANGE" + SPAWN_AREA_X_RANGE[0]);
+        Debug.Log("SPAWN Z RANGE" + SPAWN_AREA_Z_RANGE[1]);
     }
 }
