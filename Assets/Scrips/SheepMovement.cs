@@ -16,16 +16,6 @@ public class SheepMovement : MonoBehaviour
 
     enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        Debug.Log("SPAWNOU SHEEEPPPP");    
-    }
-    void Awake()
-    {
-
-    }
-
     // Update is called once per frame
     void FixedUpdate()
     {

@@ -21,7 +21,7 @@ public class SheepAI : MonoBehaviour
         players = GameObject.FindGameObjectsWithTag("Player");
         Debug.Log("players: " + players.Length);
 
-        updateSheeps();//TO DO: remove later (this assumes there are no new sheep spawning during the game)
+        updateSheeps();
     }
 
     // Update is called once per frame
@@ -41,7 +41,7 @@ public class SheepAI : MonoBehaviour
         }
     }
 
-    void updateSheeps()
+    public void updateSheeps()
     {
         sheeps.Clear();
         foreach (Transform child in transform)

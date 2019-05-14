@@ -25,6 +25,7 @@ public class SheepSpawn : MonoBehaviour
         this.sheepPrefab = (GameObject) AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Sheep.prefab", typeof(GameObject));
         this.sheepCollection = GameObject.Find("/Sheep");
         this.players = GameObject.FindGameObjectsWithTag("Player");
+
         // Calculte sheep spawn area limits
         GameObject spawnArea = GameObject.Find(SPAWN_AREA_NAME);
 
@@ -43,7 +44,12 @@ public class SheepSpawn : MonoBehaviour
         Debug.Log("SPAWN CENTER" + spawnAreaPosition);
         Debug.Log("SPAWN X RANGE" + SPAWN_AREA_X_RANGE[0]);
         Debug.Log("SPAWN Z RANGE" + SPAWN_AREA_Z_RANGE[1]);
-        //Debug.Log(spawnLimits[0]);
+
+        // Spawn initial sheep
+        for(int i = 1; i <= MAX_NEUTRAL_SHEEP; i++)
+        {
+            SpawnNewSheep();
+        }
     }
 
     // Update is called once per frame
@@ -72,10 +78,12 @@ public class SheepSpawn : MonoBehaviour
 
         foreach (GameObject player in this.players)
         {
-            Physics.IgnoreCollision(newSheep.GetComponent<Collider>(), player.GetComponent<Collider>()); // Ignore collision with player
+            Physics.IgnoreCollision(newSheep.GetComponent<Collider>(), player.GetComponent<Collider>()); // Ignore collision with players
         }
 
+        this.sheepCollection.GetComponent<SheepAI>().updateSheeps();
         Debug.Log("SHEEP SPAWNED AT POS" + spawnPosition.ToString());
+
         StartTimer();
     }
 
