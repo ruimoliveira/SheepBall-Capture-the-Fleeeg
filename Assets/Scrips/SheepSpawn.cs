@@ -53,7 +53,6 @@ public class SheepSpawn : MonoBehaviour
 
         newSheep.transform.SetParent(this.sheepCollection.transform);
         newSheep.name = "Sheep" + this.sheepCollection.transform.childCount;
-        newSheep.tag = Constants.NEUTRAL_SHEEP_TAG;
 
         foreach (GameObject player in this.players)
         {
@@ -80,7 +79,7 @@ public class SheepSpawn : MonoBehaviour
 
     bool SheepAmountBelowThreshold()
     {
-        return GameObject.FindGameObjectsWithTag(Constants.NEUTRAL_SHEEP_TAG).Length < Constants.MAX_NEUTRAL_SHEEP;
+        return GameObject.FindGameObjectsWithTag(Constants.SHEEP_TAG).Length < Constants.MAX_NEUTRAL_SHEEP;
     }
 
     void CalculateSpawnLimits()
