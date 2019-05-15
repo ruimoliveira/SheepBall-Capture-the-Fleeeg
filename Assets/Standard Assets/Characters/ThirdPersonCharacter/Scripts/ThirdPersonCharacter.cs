@@ -18,7 +18,8 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
 		Rigidbody m_Rigidbody;
 		Animator m_Animator;
-		bool m_IsGrounded;
+        Animator child_Animator;
+        bool m_IsGrounded;
 		float m_OrigGroundCheckDistance;
 		const float k_Half = 0.5f;
 		float m_TurnAmount;
@@ -33,6 +34,7 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		void Start()
 		{
 			m_Animator = GetComponent<Animator>();
+            child_Animator = GetComponentsInChildren<Animator>()[1];
 
             m_Rigidbody = GetComponent<Rigidbody>();
 			m_Capsule = GetComponent<CapsuleCollider>();
@@ -54,12 +56,18 @@ namespace UnityStandardAssets.Characters.ThirdPerson
             if (movBack)
             {
                 m_Animator.SetFloat("Direction", -0.75f);
+                child_Animator.SetFloat("Direction", -0.75f);
+
                 dirs = backMovVec;
             }
             else
             {
                 m_Animator.SetFloat("Direction", 1.0f);
+                child_Animator.SetFloat("Direction", 1.0f);
             }
+
+            if(stoppedMov)
+                child_Animator.SetFloat("Direction", 0.0f);
 
             if (dirs.magnitude > 1f) dirs.Normalize();
             dirs = transform.InverseTransformDirection(dirs);
