@@ -14,6 +14,7 @@ public class SheepAI : MonoBehaviour
 
     enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
     private const float TIME_BETWEEN_MOVEMENT = 1f;
+    private const float SCARE_DISTANCE = 4f;
 
     // Start is called before the first frame update
     void Start()
@@ -81,12 +82,12 @@ public class SheepAI : MonoBehaviour
 
             var sheep_script = sheep.GetComponent<SheepMovement>();
 
-            if (sheep_script.getState() != (int)State.Unavailable && distance < 6)
+            if (sheep_script.getState() != (int)State.Unavailable && distance < SCARE_DISTANCE)
             {
                 var opposite_direction = sheep.transform.position - player.transform.position;
                 sheep_script.scare(opposite_direction);
             }
-            else if(sheep_script.getState() == (int)State.Scared && distance >= 6)
+            else if(sheep_script.getState() == (int)State.Scared && distance >= SCARE_DISTANCE)
             {
                 sheep_script.unscare();
             }
