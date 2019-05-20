@@ -48,7 +48,7 @@ public class SheepSpawn : MonoBehaviour
     {
         float randomX = Random.Range(SPAWN_AREA_X_RANGE[0], SPAWN_AREA_X_RANGE[1]);
         float randomZ = Random.Range(SPAWN_AREA_Z_RANGE[0], SPAWN_AREA_Z_RANGE[1]);
-        Vector3 spawnPosition = new Vector3(randomX, 0.1f, randomZ);
+        Vector3 spawnPosition = new Vector3(randomX, 0f, randomZ);
         GameObject newSheep = Instantiate(this.sheepPrefab, spawnPosition, Quaternion.identity);
 
         newSheep.transform.SetParent(this.sheepCollection.transform);
