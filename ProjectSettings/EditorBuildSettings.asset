@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/FEUPsplashScene.unity
+    guid: 18a1d92bc599e7540a316355fd3202d8
+  - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: 15553fc05d5e0224b83a575fd9b3bb31
   - enabled: 1
