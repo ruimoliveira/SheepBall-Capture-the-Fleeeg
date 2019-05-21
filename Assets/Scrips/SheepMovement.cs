@@ -1,22 +1,45 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
+using PlayerManager;
 
-public class SheepMovement : MonoBehaviour
+public class SheepMovement : NetworkMessageHandler
 {
     public Transform sheep_transform;
     public Rigidbody m_Rigidbody;
     private int state = (int) State.Available;
     private Vector3 targetDestination;
     private Quaternion targetRotation;
-    private float rotationSpeed = 500f;
-    private float movingSpeed = 5f;
-    private float scaredRotationSpeed= 1000f;
-    private float scaredMovingSpeed = 2f;
+
+    private const float ROTATION_SPEED = 500f;
+    private const float MOVING_SPEED = 5f;
+    private const float SCARED_ROTATION_SPEED = 1000f;
+    private const float SCARED_MOVING_SPEED = 2f;
 
     enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
     
     private Animator m_animator;
+
+    [Header("Sheep Properties")]
+    public string sheepID;
+
+    [Header("Sheep Movement Properties")]
+    public bool canSendNetworkMovement;
+    public float speed;
+    public float networkSendRate = 5;
+    public float timeBetweenMovementStart;
+    public float timeBetweenMovementEnd;
+
+    [Header("Lerping Properties")]
+    public bool isLerpingPosition;
+    public bool isLerpingRotation;
+    public Vector3 realPosition;
+    public Quaternion realRotation;
+    public Vector3 lastRealPosition;
+    public Quaternion lastRealRotation;
+    public float timeStartedLerping;
+    public float timeToLerp;
 
     // Start is called before the first frame update
     void Start()
@@ -30,10 +53,17 @@ public class SheepMovement : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+
+        if (!isServer)
+        {
+            NetworkLerp();
+            return;
+        }
+
         switch (state)
         {
             case (int)State.Rotating:
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, ROTATION_SPEED * Time.fixedDeltaTime);
                 float angle = Quaternion.Angle(transform.rotation, targetRotation);
                 if (angle == 0)
                     state = (int)State.Moving;
@@ -42,16 +72,16 @@ public class SheepMovement : MonoBehaviour
 
             case (int)State.Moving:
 
-                sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, movingSpeed * Time.fixedDeltaTime);
+                sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, MOVING_SPEED * Time.fixedDeltaTime);
                 if (Vector3.Distance(sheep_transform.position, targetDestination) < 0.001f)
                     state = (int)State.Waiting;
 
                 break;
 
             case (int)State.Scared:
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, scaredRotationSpeed * Time.fixedDeltaTime);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, SCARED_ROTATION_SPEED * Time.fixedDeltaTime);
 
-                sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, scaredMovingSpeed * Time.fixedDeltaTime);
+                sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, SCARED_MOVING_SPEED * Time.fixedDeltaTime);
                 
                 break;
         }
@@ -73,6 +103,12 @@ public class SheepMovement : MonoBehaviour
                 m_animator.SetTrigger("Next");
             }
             prevState = 0;
+        }
+
+        if (!canSendNetworkMovement)
+        {
+            canSendNetworkMovement = true;
+            StartCoroutine(StartNetworkSendCooldown());
         }
 
     }
@@ -119,6 +155,79 @@ public class SheepMovement : MonoBehaviour
     public void unscare()
     {
         state = (int)State.Available;
+    }
+
+    private void OnReceiveSheepMessage(NetworkMessage _message)
+    {
+        SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
+
+        //TO DO: check how manager works
+        Manager.Instance.ConnectedPlayers[_msg.objectTransformName].GetComponent<SheepMovement>().ReceiveMovementMessage(_msg.objectPosition, _msg.objectRotation, _msg.time);
+    }
+
+    public void ReceiveMovementMessage(Vector3 _position, Quaternion _rotation, float _timeToLerp)
+    {
+        lastRealPosition = realPosition;
+        lastRealRotation = realRotation;
+        realPosition = _position;
+        realRotation = _rotation;
+        timeToLerp = _timeToLerp;
+
+        if (realPosition != transform.position)
+        {
+            isLerpingPosition = true;
+        }
+
+        if (realRotation.eulerAngles != transform.rotation.eulerAngles)
+        {
+            isLerpingRotation = true;
+        }
+
+        timeStartedLerping = Time.time;
+    }
+
+    private IEnumerator StartNetworkSendCooldown()
+    {
+        timeBetweenMovementStart = Time.time;
+        yield return new WaitForSeconds((1 / networkSendRate));
+        SendNetworkMovement();
+    }
+
+    private void SendNetworkMovement()
+    {
+        timeBetweenMovementEnd = Time.time;
+        SendMovementMessage(sheepID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart));
+        canSendNetworkMovement = false;
+    }
+
+    public void SendMovementMessage(string _sheepID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
+    {
+        SheepMovementMessage _msg = new SheepMovementMessage()
+        {
+            objectPosition = _position,
+            objectRotation = _rotation,
+            objectTransformName = _sheepID,
+            time = _timeTolerp
+        };
+
+        NetworkManager.singleton.client.Send(movement_msg, _msg);
+    }
+
+    private void NetworkLerp()
+    {
+        if (isLerpingPosition)
+        {
+            float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
+
+            sheep_transform.position = Vector3.Lerp(lastRealPosition, realPosition, lerpPercentage);
+        }
+
+        if (isLerpingRotation)
+        {
+            float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
+
+            sheep_transform.rotation = Quaternion.Lerp(lastRealRotation, realRotation, lerpPercentage);
+        }
     }
 
     public int getState()

@@ -11,14 +11,15 @@ public class SheepSpawn : MonoBehaviour
     private float spawnTimer = 0.0f;
     private bool spawnReady = true;
 
-    private GameObject sheepPrefab;
+    private GameObject sheepPrefab = null;
     private GameObject sheepCollection;
     private GameObject[] players;
 
     // Start is called before the first frame update
     void Awake()
     {   
-        this.sheepPrefab = (GameObject) AssetDatabase.LoadAssetAtPath("Assets/Prefabs/Sheep.prefab", typeof(GameObject));
+        this.sheepPrefab = (GameObject) Resources.Load<GameObject>("Prefabs/Sheep");
+        Debug.Log(this.sheepPrefab != null);
         this.sheepCollection = GameObject.Find("/Sheep");
         this.players = GameObject.FindGameObjectsWithTag("Player");
 
@@ -48,7 +49,7 @@ public class SheepSpawn : MonoBehaviour
     {
         float randomX = Random.Range(SPAWN_AREA_X_RANGE[0], SPAWN_AREA_X_RANGE[1]);
         float randomZ = Random.Range(SPAWN_AREA_Z_RANGE[0], SPAWN_AREA_Z_RANGE[1]);
-        Vector3 spawnPosition = new Vector3(randomX, 0f, randomZ);
+        Vector3 spawnPosition = new Vector3(randomX, 0.1f, randomZ);
         GameObject newSheep = Instantiate(this.sheepPrefab, spawnPosition, Quaternion.identity);
 
         newSheep.transform.SetParent(this.sheepCollection.transform);
