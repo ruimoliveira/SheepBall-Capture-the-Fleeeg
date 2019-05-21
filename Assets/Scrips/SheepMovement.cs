@@ -14,7 +14,14 @@ public class SheepMovement : MonoBehaviour
     private float scaredRotationSpeed= 1000f;
     private float scaredMovingSpeed = 2f;
 
-    enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
+    enum State {
+        Available,
+        Rotating,
+        Moving,
+        Waiting,
+        Unavailable,
+        Scared
+    };
     
     private Animator m_animator;
 
