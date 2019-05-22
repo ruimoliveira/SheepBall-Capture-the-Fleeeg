@@ -1,11 +1,12 @@
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace UnityStandardAssets.Characters.ThirdPerson
 {
 	[RequireComponent(typeof(Rigidbody))]
 	[RequireComponent(typeof(CapsuleCollider))]
 	[RequireComponent(typeof(Animator))]
-	public class ThirdPersonCharacter : MonoBehaviour
+	public class ThirdPersonCharacter : NetworkBehaviour
 	{
 		[SerializeField] float m_MovingTurnSpeed = 360;
 		[SerializeField] float m_StationaryTurnSpeed = 360;
@@ -30,24 +31,39 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 		CapsuleCollider m_Capsule;
 		bool m_Crouching;
 
+        private bool hasInited = false;
 
-		void Start()
+        void Start()
 		{
-			m_Animator = GetComponent<Animator>();
+
+		}
+
+        void initVariables()
+        {
+            m_Animator = GetComponent<Animator>();
             child_Animator = GetComponentsInChildren<Animator>()[1];
 
             m_Rigidbody = GetComponent<Rigidbody>();
-			m_Capsule = GetComponent<CapsuleCollider>();
-			m_CapsuleHeight = m_Capsule.height;
-			m_CapsuleCenter = m_Capsule.center;
+            m_Capsule = GetComponent<CapsuleCollider>();
+            m_CapsuleHeight = m_Capsule.height;
+            m_CapsuleCenter = m_Capsule.center;
 
-			m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
-			m_OrigGroundCheckDistance = m_GroundCheckDistance;
-		}
-
+            m_Rigidbody.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+            m_OrigGroundCheckDistance = m_GroundCheckDistance;
+        }
 
         public void Move(Vector3 dirs, float move, bool crouch, bool jump, bool stoppedMov, Vector3 backMovVec, bool movBack = false)
         {
+            if (!hasAuthority)
+            {
+                return;
+            }
+
+            if (!hasInited)
+            {
+                initVariables();
+                hasInited = true;
+            }
 
             // convert the world relative moveInput vector into a local-relative
             // turn amount and forward amount required to head in the desired

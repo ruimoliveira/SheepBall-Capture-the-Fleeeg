@@ -19,6 +19,7 @@ public class SheepAI : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        return;
         players = GameObject.FindGameObjectsWithTag("Player");
         Debug.Log("players: " + players.Length);
 
@@ -28,6 +29,7 @@ public class SheepAI : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        return;
         timer -= Time.deltaTime;
 
         // TO DO: overwrite the 'sheeps' variable every frame OR the spawn script overwrites this 'sheeps' variable when a change happens

@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using PlayerManager;
 
-public class SheepMovement : NetworkMessageHandler
+public class SheepMovement : NetworkBehaviour
 {
     public Transform sheep_transform;
     public Rigidbody m_Rigidbody;
@@ -49,14 +48,14 @@ public class SheepMovement : NetworkMessageHandler
     }
 
     int prevState = -1;
-    
+
     // Update is called once per frame
     void FixedUpdate()
     {
 
         if (!isServer)
         {
-            NetworkLerp();
+            // NetworkLerp();
             return;
         }
 
@@ -105,14 +104,14 @@ public class SheepMovement : NetworkMessageHandler
             prevState = 0;
         }
 
-        if (!canSendNetworkMovement)
+        /*if (!canSendNetworkMovement)
         {
             canSendNetworkMovement = true;
             StartCoroutine(StartNetworkSendCooldown());
-        }
+        }*/
 
     }
-
+    
     public IEnumerator move()
     {
         float x_displace = Random.Range(-10.0f, 10.0f);
@@ -156,7 +155,7 @@ public class SheepMovement : NetworkMessageHandler
     {
         state = (int)State.Available;
     }
-
+    /*
     private void OnReceiveSheepMessage(NetworkMessage _message)
     {
         SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
@@ -229,7 +228,7 @@ public class SheepMovement : NetworkMessageHandler
             sheep_transform.rotation = Quaternion.Lerp(lastRealRotation, realRotation, lerpPercentage);
         }
     }
-
+    */
     public int getState()
     {
         return state;
