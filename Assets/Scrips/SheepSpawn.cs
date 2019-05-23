@@ -18,7 +18,6 @@ public class SheepSpawn : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        return;
         this.sheepPrefab = (GameObject) Resources.Load<GameObject>("Prefabs/Sheep");
         Debug.Log(this.sheepPrefab != null);
         this.sheepCollection = GameObject.Find("/Sheep");
@@ -48,7 +47,6 @@ public class SheepSpawn : MonoBehaviour
 
     void SpawnNewSheep()
     {
-        return;
         float randomX = Random.Range(SPAWN_AREA_X_RANGE[0], SPAWN_AREA_X_RANGE[1]);
         float randomZ = Random.Range(SPAWN_AREA_Z_RANGE[0], SPAWN_AREA_Z_RANGE[1]);
         Vector3 spawnPosition = new Vector3(randomX, 0.1f, randomZ);
