@@ -73,12 +73,15 @@ public class NetworkPlayer : NetworkMessageHandler
     //recebe do servidor movement dos outros players
     private void OnReceiveMovementMessage(NetworkMessage _message)
     {
+        Debug.Log(playerID + " Recebi mensagem");
         PlayerMovementMessage _msg = _message.ReadMessage<PlayerMovementMessage>();
 
         //verifica se a mensagem NAO é a resposta do proprio jogador
         if (_msg.objectTransformName != transform.name)
         {
+            Debug.Log(playerID + " Recebi mensagem (nao e minha)");
             //aceder ao player unit de quem enviou a mensagem e atualizar os valores desse jogador
+            Debug.Log("manager null? " + Manager.Instance == null);
             Manager.Instance.ConnectedPlayers[_msg.objectTransformName].GetComponent<NetworkPlayer>().ReceiveMovementMessage(_msg.objectPosition, _msg.objectRotation, _msg.time);
         }
     }
@@ -108,10 +111,13 @@ public class NetworkPlayer : NetworkMessageHandler
     private void Update()
     {
         //verificar se ja e suposto enviar mensagem e se sim enviar
-        if (!canSendNetworkMovement)
+        if (isLocalPlayer)
         {
-            canSendNetworkMovement = true;
-            StartCoroutine(StartNetworkSendCooldown());
+            if (!canSendNetworkMovement)
+            {
+                canSendNetworkMovement = true;
+                StartCoroutine(StartNetworkSendCooldown());
+            }
         }
     }
 
