@@ -126,6 +126,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sheep_transform: {fileID: 7594166734774501721}
   m_Rigidbody: {fileID: 0}
+  sheepID: 
+  canSendNetworkMovement: 0
+  speed: 0
+  networkSendRate: 5
+  timeBetweenMovementStart: 0
+  timeBetweenMovementEnd: 0
+  isLerpingPosition: 0
+  isLerpingRotation: 0
+  realPosition: {x: 0, y: 0, z: 0}
+  realRotation: {x: 0, y: 0, z: 0, w: 0}
+  lastRealPosition: {x: 0, y: 0, z: 0}
+  lastRealRotation: {x: 0, y: 0, z: 0, w: 0}
+  timeStartedLerping: 0
+  timeToLerp: 0
 --- !u!65 &7594166734615525815
 BoxCollider:
   m_ObjectHideFlags: 0

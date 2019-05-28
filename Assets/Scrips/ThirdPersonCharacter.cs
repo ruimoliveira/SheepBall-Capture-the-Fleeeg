@@ -1,12 +1,11 @@
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace UnityStandardAssets.Characters.ThirdPerson
 {
 	[RequireComponent(typeof(Rigidbody))]
 	[RequireComponent(typeof(CapsuleCollider))]
 	[RequireComponent(typeof(Animator))]
-	public class ThirdPersonCharacter : NetworkBehaviour
+	public class ThirdPersonCharacter : MonoBehaviour
 	{
 		[SerializeField] float m_MovingTurnSpeed = 360;
 		[SerializeField] float m_StationaryTurnSpeed = 360;
@@ -54,10 +53,6 @@ namespace UnityStandardAssets.Characters.ThirdPerson
 
         public void Move(Vector3 dirs, float move, bool crouch, bool jump, bool stoppedMov, Vector3 backMovVec, bool movBack = false)
         {
-            if (!hasAuthority)
-            {
-                return;
-            }
 
             if (!hasInited)
             {
