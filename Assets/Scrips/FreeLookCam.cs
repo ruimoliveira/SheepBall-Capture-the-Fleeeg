@@ -28,6 +28,14 @@ namespace UnityStandardAssets.Cameras
 		private Quaternion m_PivotTargetRot;
 		private Quaternion m_TransformTargetRot;
 
+        public Transform RealTarget;
+
+        protected override void Start()
+        {
+            base.Start();
+            SetTarget(RealTarget);
+        }
+
         protected override void Awake()
         {
             base.Awake();
@@ -38,6 +46,8 @@ namespace UnityStandardAssets.Cameras
 
 	        m_PivotTargetRot = m_Pivot.transform.localRotation;
 			m_TransformTargetRot = transform.localRotation;
+
+            
         }
 
 

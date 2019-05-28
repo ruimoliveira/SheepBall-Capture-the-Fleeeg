@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 using PlayerManager;
 using UnityStandardAssets.Characters.ThirdPerson;
+using UnityStandardAssets.Cameras;
 
 public class NetworkPlayer : NetworkMessageHandler
 {
@@ -66,6 +67,9 @@ public class NetworkPlayer : NetworkMessageHandler
     {
         GetComponentInChildren<ThirdPersonUserControl>().enabled = false;
         GetComponentInChildren<ThirdPersonCharacter>().enabled = false;
+        GetComponentInChildren<FreeLookCam>().enabled = false;
+        GetComponentInChildren<ProtectCameraFromWallClip>().enabled = false;
+        GetComponentInChildren<Camera>().enabled = false;
     }
 
     //associar o receber de uma dada mensagem a um handler
