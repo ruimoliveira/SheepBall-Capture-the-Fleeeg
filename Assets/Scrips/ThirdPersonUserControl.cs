@@ -62,7 +62,6 @@ namespace UnityStandardAssets.Characters.ThirdPerson
                 hasInited = true;
             }
       
-            Debug.Log("FIXED");
             Vector3 m_MoveBack = Vector3.zero;
 
             // read inputs

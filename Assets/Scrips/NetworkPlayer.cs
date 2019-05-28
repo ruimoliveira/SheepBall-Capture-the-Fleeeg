@@ -30,9 +30,13 @@ public class NetworkPlayer : NetworkMessageHandler
 
     private void Start()
     {
+
+        Debug.Log("NetworkPlayer START");
+
         playerID = "player" + GetComponent<NetworkIdentity>().netId.ToString();
         transform.name = playerID;
         Manager.Instance.AddPlayerToConnectedPlayers(playerID, gameObject);
+
 
         if (isLocalPlayer)
         {
@@ -52,8 +56,8 @@ public class NetworkPlayer : NetworkMessageHandler
             isLerpingPosition = false;
             isLerpingRotation = false;
 
-            realPosition = GetComponentInChildren<Transform>().position;
-            realRotation = GetComponentInChildren<Transform>().rotation;
+            realPosition = this.transform.Find("Graphics").GetComponent<Transform>().position;
+            realRotation = this.transform.Find("Graphics").GetComponent<Transform>().rotation;
         }
     }
 
@@ -81,7 +85,7 @@ public class NetworkPlayer : NetworkMessageHandler
         {
             Debug.Log(playerID + " Recebi mensagem (nao e minha)");
             //aceder ao player unit de quem enviou a mensagem e atualizar os valores desse jogador
-            Debug.Log("manager null? " + Manager.Instance == null);
+            Debug.Log("manager null? " + (Manager.Instance == null).ToString() );
             Manager.Instance.ConnectedPlayers[_msg.objectTransformName].GetComponent<NetworkPlayer>().ReceiveMovementMessage(_msg.objectPosition, _msg.objectRotation, _msg.time);
         }
     }
@@ -89,6 +93,11 @@ public class NetworkPlayer : NetworkMessageHandler
     //atualizar variaveis de lerping vindas de uma mensagem
     public void ReceiveMovementMessage(Vector3 _position, Quaternion _rotation, float _timeToLerp)
     {
+        Debug.Log(playerID + " n sou local, atualizar valores");
+        Debug.Log("Pos" + _position.ToString());
+        Debug.Log("Rot" + _rotation.ToString());
+        Debug.Log("Time" + _timeToLerp.ToString());
+
         lastRealPosition = realPosition;
         lastRealRotation = realRotation;
         realPosition = _position;
@@ -130,10 +139,12 @@ public class NetworkPlayer : NetworkMessageHandler
 
     private void SendNetworkMovement()
     {
+        Debug.Log("posSend :" + this.transform.Find("Graphics").GetComponent<Transform>().position.ToString());
+
         timeBetweenMovementEnd = Time.time;
         SendMovementMessage(playerID,
-            GetComponentInChildren<Transform>().position,
-            GetComponentInChildren<Transform>().rotation,
+            this.transform.Find("Graphics").GetComponent<Transform>().position,
+            this.transform.Find("Graphics").GetComponent<Transform>().rotation,
             (timeBetweenMovementEnd - timeBetweenMovementStart));
         canSendNetworkMovement = false;
     }
@@ -162,18 +173,20 @@ public class NetworkPlayer : NetworkMessageHandler
     //interpolaçao do movimento de players nao locais
     private void NetworkLerp()
     {
+        Debug.Log("Network Lerp");
+
         if(isLerpingPosition)
         {
             float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
 
-            GetComponentInChildren<Transform>().position = Vector3.Lerp(lastRealPosition, realPosition, lerpPercentage);
+            this.transform.Find("Graphics").GetComponent<Transform>().position = Vector3.Lerp(lastRealPosition, realPosition, lerpPercentage);
         }
 
         if(isLerpingRotation)
         {
             float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
 
-            GetComponentInChildren<Transform>().rotation = Quaternion.Lerp(lastRealRotation, realRotation, lerpPercentage);
+            this.transform.Find("Graphics").GetComponent<Transform>().rotation = Quaternion.Lerp(lastRealRotation, realRotation, lerpPercentage);
         }
     }
 }
