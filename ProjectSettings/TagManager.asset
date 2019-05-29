@@ -10,6 +10,7 @@ TagManager:
   - ImpulseUI
   - Mira
   - Sheep
+  - Trajectory
   layers:
   - Default
   - TransparentFX

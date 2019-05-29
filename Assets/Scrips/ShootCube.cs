@@ -14,6 +14,8 @@ public class ShootCube : MonoBehaviour
     private bool isShooting = false;
     private Text impulseUIText;
     private Image miraUIText;
+    private GameObject trajectory;
+    private MeshRenderer trajectoryMeshRenderer;
 
     private void Awake()
     {
@@ -21,7 +23,9 @@ public class ShootCube : MonoBehaviour
         camera = GameObject.FindGameObjectWithTag("Camera");
         impulseUIText = GameObject.FindGameObjectWithTag("ImpulseUI").GetComponent<Text>();
         impulseUIText.text = "Impulse: " + impulseStrenth;
-        miraUIText = GameObject.FindGameObjectWithTag("Mira").GetComponent<Image>();
+        trajectory = GameObject.FindGameObjectWithTag("Trajectory");
+        trajectoryMeshRenderer = trajectory.GetComponentInChildren<MeshRenderer>();
+        //miraUIText = GameObject.FindGameObjectWithTag("Mira").GetComponent<Image>();
     }
 
     private void orientPlayer()
@@ -35,12 +39,27 @@ public class ShootCube : MonoBehaviour
 
     private void hideMira()
     {
-        miraUIText.enabled = false;
+        trajectoryMeshRenderer.enabled = false;
     }
 
     private void showMira()
     {
-        miraUIText.enabled = true;
+        trajectoryMeshRenderer.enabled = true;   
+    }
+
+    private void updateTrajectory(float impulseStrenthArg)
+    {
+        Vector3 scaleTraj = trajectory.transform.localScale;
+        scaleTraj.x = (impulseStrenthArg / 200f) + 0.025f*(impulseStrenthArg - InitialImpulseStrenght);
+        trajectory.transform.localScale = scaleTraj;
+
+        Quaternion cameraRotQ = camera.transform.rotation;
+        trajectory.transform.rotation = cameraRotQ;
+        trajectory.transform.Rotate(new Vector3(0, 90, 0), Space.Self);
+
+        Vector3 cameraPos = camera.transform.position;
+        cameraPos.y = 0.028f * (impulseStrenthArg - InitialImpulseStrenght);
+        camera.transform.position = cameraPos;
     }
 
     private void shootCube()
@@ -48,6 +67,8 @@ public class ShootCube : MonoBehaviour
         if (pickupCube.getCubeStack().ToArray().Length == 0)
         {
             impulseStrenth = InitialImpulseStrenght;
+
+            //updateTrajectory(impulseStrenth);
             updateImpulseUI();
             return;
         }
@@ -56,6 +77,7 @@ public class ShootCube : MonoBehaviour
         pickupCube.updatePinkBoxRotations();
         GameObject cube = pickupCube.removePinkCube();
         shotNextFrame = cube;
+        hideMira();
     }
 
     private void updateImpulseUI()
@@ -65,16 +87,13 @@ public class ShootCube : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        if (Input.GetKeyDown(KeyCode.Mouse0) && pickupCube.getCubeStack().ToArray().Length != 0)
         {
-            if (pickupCube.getCubeStack().ToArray().Length != 0)
-            {
-                showMira();
-            }
+            showMira();
             isShooting = true;
         }
 
-        if (Input.GetKeyUp(KeyCode.Mouse0))
+        if (Input.GetKeyUp(KeyCode.Mouse0) && pickupCube.getCubeStack().ToArray().Length != 0)
         {
             shootCube();
             isShooting = false;
@@ -83,9 +102,17 @@ public class ShootCube : MonoBehaviour
         if (isShooting)
         {
             if (impulseStrenth >= 100)
+            {
                 impulseStrenth = 100;
+
+                updateTrajectory(impulseStrenth);
+            }
             else
+            {
                 impulseStrenth += impulseStrenthSpeed * Time.deltaTime;
+
+                updateTrajectory(impulseStrenth);
+            }
             updateImpulseUI();
         }
 
@@ -102,7 +129,6 @@ public class ShootCube : MonoBehaviour
 
             impulseStrenth = InitialImpulseStrenght;
             updateImpulseUI();
-            hideMira();
 
             shotNextFrame = null;
         }

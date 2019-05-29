@@ -1,0 +1,234 @@
+fileFormatVersion: 2
+guid: 0b3d0d065127c004bac57b55626df4b7
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Farmer
+    100002: //RootNode
+    100004: foot.L
+    100006: foot.R
+    100008: forearm.L
+    100010: forearm.R
+    100012: hand.L
+    100014: hand.L_end
+    100016: hand.R
+    100018: hand.R_end
+    100020: LegIk.L
+    100022: LegIk.L_end
+    100024: LegIk.R
+    100026: LegIk.R_end
+    100028: LegPoleTarget.L
+    100030: LegPoleTarget.L_end
+    100032: LegPoleTarget.R
+    100034: LegPoleTarget.R_end
+    100036: metarig
+    100038: shin.L
+    100040: shin.R
+    100042: shoulder.L
+    100044: shoulder.R
+    100046: spine
+    100048: spine.001
+    100050: spine.002
+    100052: spine.003
+    100054: spine.004
+    100056: spine.005
+    100058: spine.006
+    100060: spine.006_end
+    100062: thigh.L
+    100064: thigh.R
+    100066: toe.L
+    100068: toe.L_end
+    100070: toe.R
+    100072: toe.R_end
+    100074: upper_arm.L
+    100076: upper_arm.R
+    400000: Farmer
+    400002: //RootNode
+    400004: foot.L
+    400006: foot.R
+    400008: forearm.L
+    400010: forearm.R
+    400012: hand.L
+    400014: hand.L_end
+    400016: hand.R
+    400018: hand.R_end
+    400020: LegIk.L
+    400022: LegIk.L_end
+    400024: LegIk.R
+    400026: LegIk.R_end
+    400028: LegPoleTarget.L
+    400030: LegPoleTarget.L_end
+    400032: LegPoleTarget.R
+    400034: LegPoleTarget.R_end
+    400036: metarig
+    400038: shin.L
+    400040: shin.R
+    400042: shoulder.L
+    400044: shoulder.R
+    400046: spine
+    400048: spine.001
+    400050: spine.002
+    400052: spine.003
+    400054: spine.004
+    400056: spine.005
+    400058: spine.006
+    400060: spine.006_end
+    400062: thigh.L
+    400064: thigh.R
+    400066: toe.L
+    400068: toe.L_end
+    400070: toe.R
+    400072: toe.R_end
+    400074: upper_arm.L
+    400076: upper_arm.R
+    2100000: Face.001
+    2100002: Beard
+    2100004: Shirt
+    2100006: Denim
+    2100008: Basic
+    2100010: Shoes
+    2100012: Skin
+    2100014: Eyes
+    2100016: Glasses
+    4300000: Farmer
+    7400000: metarig|DROPDOWN
+    7400002: metarig|PICKUP
+    7400004: metarig|Run
+    7400006: metarig|Run_Shot
+    7400008: metarig|RunWSheep
+    7400010: metarig|Stand
+    7400012: metarig|Stand_Shot
+    7400014: metarig|StandWSheep
+    9500000: //RootNode
+    13700000: Farmer
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Basic
+    second: {fileID: 2100000, guid: 6eeb0ebf85b530a4f91cd50c460372ca, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Beard
+    second: {fileID: 2100000, guid: b50d47d3d8b11c74281fc02fd2aeed75, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Denim
+    second: {fileID: 2100000, guid: d6130003f81d6fd428c1e1cf74c0614c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Eyes
+    second: {fileID: 2100000, guid: 10d21a086fa671a4a8b363b8b9c810f6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Face.001
+    second: {fileID: 2100000, guid: bf6361b2bfa83df47bab29b2f728ede7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Glasses
+    second: {fileID: 2100000, guid: cb459d43decceeb4e9188271c11379b4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Shirt
+    second: {fileID: 2100000, guid: f956aa1ff0951bb4685d17166ddf6970, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Shoes
+    second: {fileID: 2100000, guid: 4e7c50263d5e32240b6abaf1bdf7b4f7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Skin
+    second: {fileID: 2100000, guid: e2d71f14ae5480d439d5465f4ce70889, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 0
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 0.01
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
