@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class SheepMovement : NetworkBehaviour
+public class SheepMovement : NetworkMessageHandler
 {
     public Transform sheep_transform;
     public Rigidbody m_Rigidbody;
@@ -43,6 +43,9 @@ public class SheepMovement : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        sheepID = "sheep" + GetComponent<NetworkIdentity>().netId.ToString();
+        transform.name = sheepID;
+
         m_animator = GetComponentInChildren<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
     }
@@ -55,7 +58,7 @@ public class SheepMovement : NetworkBehaviour
 
         if (!isServer)
         {
-            // NetworkLerp();
+            NetworkLerp();
             return;
         }
 
@@ -104,11 +107,11 @@ public class SheepMovement : NetworkBehaviour
             prevState = 0;
         }
 
-        /*if (!canSendNetworkMovement)
+        if (!canSendNetworkMovement)
         {
             canSendNetworkMovement = true;
             StartCoroutine(StartNetworkSendCooldown());
-        }*/
+        }
 
     }
     
@@ -155,16 +158,8 @@ public class SheepMovement : NetworkBehaviour
     {
         state = (int)State.Available;
     }
-    /*
-    private void OnReceiveSheepMessage(NetworkMessage _message)
-    {
-        SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
 
-        //TO DO: check how manager works
-        Manager.Instance.ConnectedPlayers[_msg.objectTransformName].GetComponent<SheepMovement>().ReceiveMovementMessage(_msg.objectPosition, _msg.objectRotation, _msg.time);
-    }
-
-    public void ReceiveMovementMessage(Vector3 _position, Quaternion _rotation, float _timeToLerp)
+    public void localMove(Vector3 _position, Quaternion _rotation, float _timeToLerp)
     {
         lastRealPosition = realPosition;
         lastRealRotation = realRotation;
@@ -209,7 +204,8 @@ public class SheepMovement : NetworkBehaviour
             time = _timeTolerp
         };
 
-        NetworkManager.singleton.client.Send(movement_msg, _msg);
+        //NetworkServer.SendToAll(sheep_movement_msg, _msg);
+        NetworkManager.singleton.client.Send(sheep_movement_msg, _msg);
     }
 
     private void NetworkLerp()
@@ -228,7 +224,7 @@ public class SheepMovement : NetworkBehaviour
             sheep_transform.rotation = Quaternion.Lerp(lastRealRotation, realRotation, lerpPercentage);
         }
     }
-    */
+    
     public int getState()
     {
         return state;

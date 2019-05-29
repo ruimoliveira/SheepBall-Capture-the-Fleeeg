@@ -17,6 +17,7 @@ public class NetworkServerRelay : NetworkMessageHandler
     private void RegisterNetworkMessages()
     {
         NetworkServer.RegisterHandler(player_movement_msg, OnReceivePlayerMovementMessage);
+        NetworkServer.RegisterHandler(sheep_movement_msg, SendSheepMovement);
     }
 
     private void OnReceivePlayerMovementMessage(NetworkMessage _message)
