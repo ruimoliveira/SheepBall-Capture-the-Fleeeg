@@ -87,13 +87,13 @@ public class ShootSheep : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0) && pickupCube.getCubeStack().ToArray().Length != 0)
+        if (Input.GetKeyDown(KeyCode.Mouse0) && pickupSheep.getSheepStack().Count != 0)
         {
             showMira();
             isShooting = true;
         }
 
-        if (Input.GetKeyUp(KeyCode.Mouse0) && pickupCube.getCubeStack().ToArray().Length != 0)
+        if (Input.GetKeyUp(KeyCode.Mouse0) && pickupSheep.getSheepStack().Count != 0)
         {
             shootSheep();
             isShooting = false;

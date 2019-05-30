@@ -70,7 +70,6 @@ public class PickupSheep : MonoBehaviour
         }
     }   
 
-
     public GameObject dropSheep()
     {
         if (sheepPickedup.Count == 0)
