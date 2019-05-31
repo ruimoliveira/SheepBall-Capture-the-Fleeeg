@@ -9,21 +9,38 @@ ModelImporter:
     100006: //RootNode
     100008: Camera.001
     100010: Lamp.001
+    100012: Camera.002
+    100014: Light
     400000: Camera
     400002: Lamp
     400004: Ring
     400006: //RootNode
     400008: Camera.001
     400010: Lamp.001
+    400012: Camera.002
+    400014: Light
     2000000: Camera
     2000002: Camera.001
+    2000004: Camera.002
     2100000: YellowSmooth
+    2100002: YellowSmooth.002
     2300000: Ring
     3300000: Ring
     4300000: Ring
     10800000: Lamp
     10800002: Lamp.001
-  externalObjects: {}
+    10800004: Light
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: YellowSmooth
+    second: {fileID: 2100000, guid: a7c1cf42607cc8e4bace2b6c8f8f32c8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: YellowSmooth.002
+    second: {fileID: 2100000, guid: 1324e408c366ff44c8a647b6ef336ea5, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

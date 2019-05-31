@@ -1,28 +1,81 @@
 fileFormatVersion: 2
-guid: ba4f8b229c6237047860dca35c80c844
+guid: 88dd919854bf3314db03777976a23204
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
-    100000: Camera
-    100002: Camera.001
-    100004: Lamp
-    100006: Lamp.001
-    100008: Ring
-    100010: //RootNode
-    400000: Camera
-    400002: Camera.001
-    400004: Lamp
-    400006: Lamp.001
-    400008: Ring
-    400010: //RootNode
-    2000000: Camera
-    2000002: Camera.001
-    2100000: YellowSmooth
-    2300000: Ring
-    3300000: Ring
-    4300000: Ring
-    10800000: Lamp
-    10800002: Lamp.001
+    100000: foot.L
+    100002: foot.L_end
+    100004: foot.R
+    100006: foot.R_end
+    100008: front_foot.L
+    100010: front_foot.L_end
+    100012: front_foot.R
+    100014: front_foot.R_end
+    100016: front_shin.L
+    100018: front_shin.R
+    100020: front_thigh.L
+    100022: front_thigh.R
+    100024: metarig
+    100026: //RootNode
+    100028: shin.L
+    100030: shin.R
+    100032: shoulder.L
+    100034: shoulder.R
+    100036: Sphere.223
+    100038: spine.005
+    100040: spine.006
+    100042: spine.007
+    100044: spine.008
+    100046: spine.009
+    100048: spine.010
+    100050: spine.011
+    100052: spine.011_end
+    100054: thigh.L
+    100056: thigh.R
+    400000: foot.L
+    400002: foot.L_end
+    400004: foot.R
+    400006: foot.R_end
+    400008: front_foot.L
+    400010: front_foot.L_end
+    400012: front_foot.R
+    400014: front_foot.R_end
+    400016: front_shin.L
+    400018: front_shin.R
+    400020: front_thigh.L
+    400022: front_thigh.R
+    400024: metarig
+    400026: //RootNode
+    400028: shin.L
+    400030: shin.R
+    400032: shoulder.L
+    400034: shoulder.R
+    400036: Sphere.223
+    400038: spine.005
+    400040: spine.006
+    400042: spine.007
+    400044: spine.008
+    400046: spine.009
+    400048: spine.010
+    400050: spine.011
+    400052: spine.011_end
+    400054: thigh.L
+    400056: thigh.R
+    2100000: Body
+    2100002: eye
+    2100004: Skin
+    2100006: bigEye
+    4300000: Sphere.223
+    7400000: metarig|Ball
+    7400002: metarig|Fly
+    7400004: metarig|metarigAction
+    7400006: metarig|Shot
+    7400008: metarig|Stand
+    7400010: metarig|WalkCycleTrue
+    7400012: metarig|walking.001
+    9500000: //RootNode
+    13700000: Sphere.223
+    2186277476908879412: ImportLogs
   externalObjects: {}
   materials:
     importMaterials: 1
@@ -75,8 +128,8 @@ ModelImporter:
     secondaryUVHardAngle: 88
     secondaryUVPackMargin: 4
     useFileScale: 1
-    previousCalculatedGlobalScale: 1
-    hasPreviousCalculatedGlobalScale: 0
+    previousCalculatedGlobalScale: 0.01
+    hasPreviousCalculatedGlobalScale: 1
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
@@ -103,7 +156,7 @@ ModelImporter:
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 0
+  animationType: 2
   humanoidOversampling: 1
   additionalBone: 0
   userData: 
