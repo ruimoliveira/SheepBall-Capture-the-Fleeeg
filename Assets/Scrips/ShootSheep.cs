@@ -8,9 +8,12 @@ public class ShootSheep : MonoBehaviour
     private PickupSheep pickupSheep;
     private GameObject camera;
     private GameObject shotNextFrame = null;
-    private const float InitialImpulseStrenght = 50;
+    private const float InitialImpulseStrenght = 25;
+    private const float InitialImpulseAccel = 5f;
+    private const float InitialImpulseSpeed = 10f;
     private float impulseStrenth = InitialImpulseStrenght;
-    private const float impulseStrenthSpeed = 20f;
+    private float impulseStrenthSpeed = InitialImpulseSpeed;
+    private float impulseAccel = InitialImpulseAccel;
     private bool isShooting = false;
     private Text impulseUIText;
     private Image miraUIText;
@@ -70,6 +73,9 @@ public class ShootSheep : MonoBehaviour
     {
         if (pickupSheep.getSheepStack().Count == 0)
         {
+
+            impulseAccel = InitialImpulseAccel;
+            impulseStrenthSpeed = InitialImpulseSpeed;
             impulseStrenth = InitialImpulseStrenght;
 
             updateImpulseUI();
@@ -112,6 +118,7 @@ public class ShootSheep : MonoBehaviour
             }
             else
             {
+                impulseStrenthSpeed += impulseAccel * Time.deltaTime;
                 impulseStrenth += impulseStrenthSpeed * Time.deltaTime;
 
                 updateTrajectory(impulseStrenth);
@@ -130,6 +137,8 @@ public class ShootSheep : MonoBehaviour
             rbSheep.AddRelativeForce(new Vector3(0,0.1f,0.7f) * impulseStrenth, ForceMode.Impulse);
 
             impulseStrenth = InitialImpulseStrenght;
+            impulseStrenthSpeed = InitialImpulseSpeed;
+            impulseAccel = InitialImpulseAccel;
             updateImpulseUI();
 
             shotNextFrame = null;
