@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShootCube : MonoBehaviour
+public class ShootSheep : MonoBehaviour
 {
-    private PickupPinkBox pickupCube;
+    private PickupSheep pickupSheep;
     private GameObject camera;
     private GameObject shotNextFrame = null;
     private const float InitialImpulseStrenght = 50;
@@ -20,14 +20,14 @@ public class ShootCube : MonoBehaviour
 
     private void Awake()
     {
-        pickupCube = gameObject.GetComponent<PickupPinkBox>();
+        pickupSheep = gameObject.GetComponent<PickupSheep>();
         camera = GameObject.FindGameObjectWithTag("Camera");
         impulseUIText = GameObject.FindGameObjectWithTag("ImpulseUI").GetComponent<Text>();
         impulseUIText.text = "Impulse: " + impulseStrenth;
         trajectory = GameObject.FindGameObjectWithTag("Trajectory");
         trajectoryMeshRenderer = trajectory.GetComponentInChildren<MeshRenderer>();
         trajectoryMeshRendererAim = trajectoryMeshRenderer.gameObject.GetComponentInChildren<SpriteRenderer>();
-        //miraUIText = GameObject.FindGameObjectWithTag("Mira").GetComponent<Image>();
+
     }
 
     private void orientPlayer()
@@ -66,21 +66,20 @@ public class ShootCube : MonoBehaviour
         camera.transform.position = cameraPos;
     }
 
-    private void shootCube()
+    private void shootSheep()
     {
-        if (pickupCube.getCubeStack().ToArray().Length == 0)
+        if (pickupSheep.getSheepStack().Count == 0)
         {
             impulseStrenth = InitialImpulseStrenght;
 
-            //updateTrajectory(impulseStrenth);
             updateImpulseUI();
             return;
         }
 
         orientPlayer();
-        pickupCube.updatePinkBoxRotations();
-        GameObject cube = pickupCube.removePinkCube();
-        shotNextFrame = cube;
+        pickupSheep.updateSheepRotation();
+        GameObject sheep = pickupSheep.dropSheep();
+        shotNextFrame = sheep;
         hideMira();
     }
 
@@ -91,15 +90,15 @@ public class ShootCube : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0) && pickupCube.getCubeStack().ToArray().Length != 0)
+        if (Input.GetKeyDown(KeyCode.Mouse0) && pickupSheep.getSheepStack().Count != 0)
         {
             showMira();
             isShooting = true;
         }
 
-        if (Input.GetKeyUp(KeyCode.Mouse0) && pickupCube.getCubeStack().ToArray().Length != 0)
+        if (Input.GetKeyUp(KeyCode.Mouse0) && pickupSheep.getSheepStack().Count != 0)
         {
-            shootCube();
+            shootSheep();
             isShooting = false;
         }
 
@@ -122,14 +121,13 @@ public class ShootCube : MonoBehaviour
 
     }
 
-    private void checkShootCube()
+    private void checkShootSheep()
     {
         if (shotNextFrame != null)
         {
+            Rigidbody rbSheep = shotNextFrame.GetComponent<Rigidbody>();
 
-            Rigidbody rbCube = shotNextFrame.GetComponent<Rigidbody>();
-
-            rbCube.AddRelativeForce(new Vector3(0,0.1f,0.7f) * impulseStrenth,ForceMode.Impulse);
+            rbSheep.AddRelativeForce(new Vector3(0,0.1f,0.7f) * impulseStrenth, ForceMode.Impulse);
 
             impulseStrenth = InitialImpulseStrenght;
             updateImpulseUI();
@@ -140,6 +138,6 @@ public class ShootCube : MonoBehaviour
 
     private void FixedUpdate()
     {
-        checkShootCube();
+        checkShootSheep();
     }
 }

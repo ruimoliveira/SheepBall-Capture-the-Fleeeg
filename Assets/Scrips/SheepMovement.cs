@@ -137,4 +137,14 @@ public class SheepMovement : MonoBehaviour
     {
         this.state = state;
     }
+
+    public void setAvailable()
+    {
+        this.state = (int)State.Available;
+    }
+
+    public void setUnavailable()
+    {
+        this.state = (int)State.Unavailable;
+    }
 }
