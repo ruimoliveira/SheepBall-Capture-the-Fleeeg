@@ -16,6 +16,7 @@ public class ShootCube : MonoBehaviour
     private Image miraUIText;
     private GameObject trajectory;
     private MeshRenderer trajectoryMeshRenderer;
+    private SpriteRenderer trajectoryMeshRendererAim;
 
     private void Awake()
     {
@@ -25,6 +26,7 @@ public class ShootCube : MonoBehaviour
         impulseUIText.text = "Impulse: " + impulseStrenth;
         trajectory = GameObject.FindGameObjectWithTag("Trajectory");
         trajectoryMeshRenderer = trajectory.GetComponentInChildren<MeshRenderer>();
+        trajectoryMeshRendererAim = trajectoryMeshRenderer.gameObject.GetComponentInChildren<SpriteRenderer>();
         //miraUIText = GameObject.FindGameObjectWithTag("Mira").GetComponent<Image>();
     }
 
@@ -40,11 +42,13 @@ public class ShootCube : MonoBehaviour
     private void hideMira()
     {
         trajectoryMeshRenderer.enabled = false;
+        trajectoryMeshRendererAim.enabled = false;
     }
 
     private void showMira()
     {
-        trajectoryMeshRenderer.enabled = true;   
+        trajectoryMeshRenderer.enabled = true;
+        trajectoryMeshRendererAim.enabled = true;
     }
 
     private void updateTrajectory(float impulseStrenthArg)
@@ -125,7 +129,7 @@ public class ShootCube : MonoBehaviour
 
             Rigidbody rbCube = shotNextFrame.GetComponent<Rigidbody>();
 
-            rbCube.AddRelativeForce(new Vector3(0,0.1f,0.6f) * impulseStrenth,ForceMode.Impulse);
+            rbCube.AddRelativeForce(new Vector3(0,0.1f,0.7f) * impulseStrenth,ForceMode.Impulse);
 
             impulseStrenth = InitialImpulseStrenght;
             updateImpulseUI();
