@@ -59,6 +59,7 @@ public class SheepSpawn : NetworkBehaviour
         GameObject newSheep = Instantiate(this.sheepPrefab, spawnPosition, Quaternion.identity);
         
         newSheep.transform.SetParent(this.sheepCollection.transform);
+        Debug.Log("SHEEP COLLECTION: " + this.sheepCollection);
         newSheep.name = "Sheep" + this.sheepCollection.transform.childCount;
 
         foreach (GameObject player in this.players)
@@ -69,8 +70,6 @@ public class SheepSpawn : NetworkBehaviour
         NetworkServer.Spawn(newSheep);
         this.sheepCollection.GetComponent<SheepAI>().updateSheeps();
         
-
-
         StartTimer();
     }
 
