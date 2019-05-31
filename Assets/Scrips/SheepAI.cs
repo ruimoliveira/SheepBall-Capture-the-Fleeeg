@@ -168,18 +168,12 @@ public class SheepAI : NetworkMessageHandler
     public void receiveSheepMessage(NetworkMessage _message)
     {
         SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
-        Debug.Log("position" + _msg.objectPosition);
-        Debug.Log("sheeps size" + sheeps.Count);
 
-        GameObject[] spawnedSheeps = GameObject.FindGameObjectsWithTag("Sheep");
+        GameObject sheep = GameObject.Find(_msg.objectTransformName);
 
-        foreach (GameObject sheep in spawnedSheeps)
+        if(sheep != null)
         {
-            if(sheep.transform.name == _msg.objectTransformName)
-            {
-                sheep.GetComponent<SheepMovement>().localMove(_msg.objectPosition, _msg.objectRotation, _msg.time);
-                break;
-            }
+            sheep.GetComponent<SheepMovement>().localMove(_msg.objectPosition, _msg.objectRotation, _msg.time);
         }
     }
 
