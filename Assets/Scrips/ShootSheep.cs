@@ -134,7 +134,7 @@ public class ShootSheep : MonoBehaviour
         {
             Rigidbody rbSheep = shotNextFrame.GetComponent<Rigidbody>();
 
-            rbSheep.AddRelativeForce(new Vector3(0,0.1f,0.7f) * impulseStrenth, ForceMode.Impulse);
+            rbSheep.AddRelativeForce(new Vector3(0,0.1f,1f) * impulseStrenth, ForceMode.Impulse);
 
             impulseStrenth = InitialImpulseStrenght;
             impulseStrenthSpeed = InitialImpulseSpeed;

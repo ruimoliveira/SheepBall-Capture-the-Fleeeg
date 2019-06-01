@@ -1,39 +1,39 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SheepAnimationState;
 
 public class SheepMovement : MonoBehaviour
 {
     public Transform sheep_transform;
     public Rigidbody m_Rigidbody;
-    private int state = (int) State.Available;
+    private int state = (int)State.Available;
     private Vector3 targetDestination;
     private Quaternion targetRotation;
     private float rotationSpeed = 500f;
     private float movingSpeed = 5f;
-    private float scaredRotationSpeed= 1000f;
+    private float scaredRotationSpeed = 1000f;
     private float scaredMovingSpeed = 2f;
 
-    enum State {
-        Available,
-        Rotating,
-        Moving,
-        Waiting,
-        Unavailable,
-        Scared
-    };
-    
+    private IAnimState animState;
+
     private Animator m_animator;
+
+    public void SetAnimState(IAnimState animStateArg)
+    {
+        animState = animStateArg;
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         m_animator = GetComponentInChildren<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
+
+        
+        animState = new Iddle(ref m_animator);
     }
 
-    int prevState = -1;
-    
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -44,7 +44,7 @@ public class SheepMovement : MonoBehaviour
                 float angle = Quaternion.Angle(transform.rotation, targetRotation);
                 if (angle == 0)
                     state = (int)State.Moving;
-                
+
                 break;
 
             case (int)State.Moving:
@@ -59,28 +59,11 @@ public class SheepMovement : MonoBehaviour
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, scaredRotationSpeed * Time.fixedDeltaTime);
 
                 sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, scaredMovingSpeed * Time.fixedDeltaTime);
-                
+
                 break;
         }
 
-        if (state == (int)State.Scared || state == (int)State.Moving)
-        {
-            if (prevState != 1)
-            {
-                m_animator.SetInteger("AnimIndex", 1);
-                m_animator.SetTrigger("Next");
-            }
-            prevState = 1;
-        }
-        else
-        {
-            if (prevState != 0)
-            {
-                m_animator.SetInteger("AnimIndex", 0);
-                m_animator.SetTrigger("Next");
-            }
-            prevState = 0;
-        }
+        animState = animState.next(state);
 
     }
 
@@ -91,7 +74,7 @@ public class SheepMovement : MonoBehaviour
         Vector3 displacement = new Vector3(x_displace, 0f, z_displace);
 
         targetDestination = sheep_transform.position + displacement;
-        targetRotation = Quaternion.LookRotation( sheep_transform.position - targetDestination);
+        targetRotation = Quaternion.LookRotation(sheep_transform.position - targetDestination);
 
         state = (int)State.Rotating;
         yield return new WaitUntil(() => state == (int)State.Moving); //wait until rotation finishes
@@ -109,7 +92,7 @@ public class SheepMovement : MonoBehaviour
     {
         float magnitude = Mathf.Sqrt((direction.x * direction.x) + (direction.z * direction.z));
 
-        float x_normalized = direction.x / magnitude; 
+        float x_normalized = direction.x / magnitude;
         float z_normalized = direction.z / magnitude;
 
         float x_intensity = 2f;
@@ -147,4 +130,6 @@ public class SheepMovement : MonoBehaviour
     {
         this.state = (int)State.Unavailable;
     }
+
+
 }
