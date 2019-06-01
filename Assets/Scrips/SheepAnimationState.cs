@@ -15,6 +15,16 @@ namespace SheepAnimationState
         Flying
     };
 
+
+    public enum AnimStates
+    {
+        Iddle,
+        Scared,
+        Walking,
+        Ball,
+        Shot
+    };
+
     public abstract class IAnimState
     {
         protected Animator m_animator;
@@ -22,31 +32,47 @@ namespace SheepAnimationState
         public IAnimState(ref Animator m_animator)
         {
             this.m_animator = m_animator;
+            this.m_animator.SetTrigger("Next");
         }
 
-        public virtual IAnimState next(int state)
+        public IAnimState next(int state)
         {
+
+            if ((state == (int)State.Available || state == (int)State.Waiting) && !GetType().Equals(typeof(Iddle)))
+            {
+                return new Iddle(ref m_animator);
+            }
+
+            if (state == (int)State.Unavailable && !GetType().Equals(typeof(Ball)))
+            {
+                return new Ball(ref m_animator);
+            }
+
+            if ((state == (int)State.Moving || state == (int)State.Rotating) && !GetType().Equals(typeof(Walking)))
+            {
+                return new Walking(ref m_animator);
+            }
+
+            if (state == (int)State.Scared && !GetType().Equals(typeof(Scared)))
+            {
+                return new Scared(ref m_animator);
+            }
+
+            if (state == (int)State.Flying && !GetType().Equals(typeof(Shot)))
+            {
+                return new Shot(ref m_animator);
+            }
+
             return this;
         }
     }
 
-    class Flying : IAnimState
+    class Shot : IAnimState
     {
 
-        public Flying(ref Animator m_animator) : base(ref m_animator)
+        public Shot(ref Animator m_animator) : base(ref m_animator)
         {
-            this.m_animator.SetTrigger("FirstOption");
-        }
-
-        public override IAnimState next(int state)
-        {
-            Debug.Log("Flying State: " + state);
-            switch (state)
-            {
-                case (int)State.Available:
-                    return new Iddle(ref this.m_animator);
-            }
-            return this;
+            this.m_animator.SetInteger("Index", (int)AnimStates.Shot);
         }
     }
 
@@ -54,45 +80,14 @@ namespace SheepAnimationState
     {
         public Ball(ref Animator m_animator) : base(ref m_animator)
         {
-            this.m_animator.SetTrigger("FirstOption");
-        }
-
-        public override IAnimState next(int state)
-        {
-            Debug.Log("Ball State: " + state);
-            switch (state)
-            {
-                case (int)State.Flying:
-                    return new Flying(ref this.m_animator);
-
-                case (int)State.Available:
-                    return new Iddle(ref this.m_animator);
-            }
-            return this;
+            this.m_animator.SetInteger("Index", (int)AnimStates.Ball);
         }
     }
     class Walking : IAnimState
     {
         public Walking(ref Animator m_animator) : base(ref m_animator)
         {
-            this.m_animator.SetTrigger("FirstOption");
-        }
-
-        public override IAnimState next(int state)
-        {
-            Debug.Log("Walking State: " + state);
-            switch (state)
-            {
-                case (int)State.Unavailable:
-                    return new Ball(ref this.m_animator);
-
-                case (int)State.Waiting:
-                    return new Iddle(ref this.m_animator);
-
-                default:
-
-                    return this;
-            }
+            this.m_animator.SetInteger("Index", (int)AnimStates.Walking);
         }
     }
 
@@ -100,22 +95,7 @@ namespace SheepAnimationState
     {
         public Scared(ref Animator m_animator) : base(ref m_animator)
         {
-            this.m_animator.SetTrigger("SecondOption");
-        }
-
-        public override IAnimState next(int state)
-        {
-            Debug.Log("Scared State: " + state);
-            switch (state)
-            {
-                case (int)State.Unavailable:
-                    return new Ball(ref this.m_animator);
-                default:
-                    if(state != (int)State.Unavailable) 
-                        return new Iddle(ref this.m_animator);
-                    else
-                        return this;
-            }
+            this.m_animator.SetInteger("Index", (int)AnimStates.Scared);
         }
     }
 
@@ -123,21 +103,7 @@ namespace SheepAnimationState
     {
         public Iddle(ref Animator m_animator) : base(ref m_animator)
         {
-            this.m_animator.SetTrigger("SecondOption");
-        }
-
-        public override IAnimState next(int state)
-        {
-            Debug.Log("Iddle State: " + state);
-            switch (state)
-            {
-                case (int)State.Moving:
-                    return new Walking(ref this.m_animator);
-
-                case (int)State.Scared:
-                    return new Scared(ref this.m_animator);
-            }
-            return this;
+            this.m_animator.SetInteger("Index", (int)AnimStates.Iddle);
         }
     }
 }

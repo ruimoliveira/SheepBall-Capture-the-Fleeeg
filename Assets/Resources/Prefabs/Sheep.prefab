@@ -222,7 +222,15 @@ PrefabInstance:
     - target: {fileID: 9500000, guid: 88dd919854bf3314db03777976a23204, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 0e6dc658bbfd66741a6e19a2a5bfbf22, type: 2}
+      objectReference: {fileID: 9100000, guid: 5274f73c426c9314d8bdd4450ac79c39, type: 2}
+    - target: {fileID: 400008, guid: 88dd919854bf3314db03777976a23204, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.079792015
+      objectReference: {fileID: 0}
+    - target: {fileID: 400008, guid: 88dd919854bf3314db03777976a23204, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.4911102
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 88dd919854bf3314db03777976a23204, type: 3}
 --- !u!4 &3600943591441759496 stripped
