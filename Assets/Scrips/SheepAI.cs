@@ -167,13 +167,17 @@ public class SheepAI : NetworkMessageHandler
 
     public void receiveSheepMessage(NetworkMessage _message)
     {
+        //server does not care about receiving messages
+        if(isServer)
+            return;
+
         SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
 
         GameObject sheep = GameObject.Find(_msg.objectTransformName);
 
         if(sheep != null)
         {
-            sheep.GetComponent<SheepMovement>().localMove(_msg.objectPosition, _msg.objectRotation, _msg.time);
+            sheep.GetComponent<SheepMovement>().localMove(_msg.objectPosition, _msg.objectRotation, _msg.time, _msg.objectAnimation);
         }
     }
 

@@ -159,8 +159,15 @@ public class SheepMovement : NetworkMessageHandler
         state = (int)State.Available;
     }
 
-    public void localMove(Vector3 _position, Quaternion _rotation, float _timeToLerp)
+    public void localMove(Vector3 _position, Quaternion _rotation, float _timeToLerp, int anim_index)
     {
+        int previous_anim_index = m_animator.GetInteger("AnimIndex");
+        if(previous_anim_index != anim_index)
+        {
+            m_animator.SetInteger("AnimIndex", anim_index);
+            m_animator.SetTrigger("Next");
+        }
+
         lastRealPosition = realPosition;
         lastRealRotation = realRotation;
         realPosition = _position;
@@ -190,18 +197,20 @@ public class SheepMovement : NetworkMessageHandler
     private void SendNetworkMovement()
     {
         timeBetweenMovementEnd = Time.time;
-        SendMovementMessage(sheepID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart));
+        int anim_index = m_animator.GetInteger("AnimIndex");
+        SendMovementMessage(sheepID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart), anim_index);
         canSendNetworkMovement = false;
     }
 
-    public void SendMovementMessage(string _sheepID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
+    public void SendMovementMessage(string _sheepID, Vector3 _position, Quaternion _rotation, float _timeTolerp, int anim_index)
     {
         SheepMovementMessage _msg = new SheepMovementMessage()
         {
             objectPosition = _position,
             objectRotation = _rotation,
             objectTransformName = _sheepID,
-            time = _timeTolerp
+            time = _timeTolerp,
+            objectAnimation = anim_index
         };
 
         //NetworkServer.SendToAll(sheep_movement_msg, _msg);

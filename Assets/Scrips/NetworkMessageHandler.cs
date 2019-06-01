@@ -24,6 +24,7 @@ public abstract class NetworkMessageHandler : NetworkBehaviour
         public Vector3 objectPosition;
         public Quaternion objectRotation;
         public float time;
+        public int objectAnimation;
     }
 
     public class MatchInfoMessage : MessageBase
