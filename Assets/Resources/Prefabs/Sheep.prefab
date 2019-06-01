@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7594166734772747615}
   - component: {fileID: 7594166734776907093}
   - component: {fileID: 7594166734769592079}
+  - component: {fileID: 4205160174954021513}
   - component: {fileID: 1643246861820992619}
   - component: {fileID: 7594166734615525815}
   - component: {fileID: 4443937574114342569}
@@ -112,6 +113,18 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
+--- !u!114 &4205160174954021513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7594166734774793077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e5ee464f9124414eba8443c6102812c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1643246861820992619
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,20 +139,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sheep_transform: {fileID: 7594166734774501721}
   m_Rigidbody: {fileID: 0}
-  sheepID: 
-  canSendNetworkMovement: 0
-  speed: 0
-  networkSendRate: 5
-  timeBetweenMovementStart: 0
-  timeBetweenMovementEnd: 0
-  isLerpingPosition: 0
-  isLerpingRotation: 0
-  realPosition: {x: 0, y: 0, z: 0}
-  realRotation: {x: 0, y: 0, z: 0, w: 0}
-  lastRealPosition: {x: 0, y: 0, z: 0}
-  lastRealRotation: {x: 0, y: 0, z: 0, w: 0}
-  timeStartedLerping: 0
-  timeToLerp: 0
 --- !u!65 &7594166734615525815
 BoxCollider:
   m_ObjectHideFlags: 0

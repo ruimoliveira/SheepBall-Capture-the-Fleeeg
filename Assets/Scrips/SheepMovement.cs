@@ -16,7 +16,14 @@ public class SheepMovement : NetworkMessageHandler
     private const float SCARED_ROTATION_SPEED = 1000f;
     private const float SCARED_MOVING_SPEED = 2f;
 
-    enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
+    enum State {
+        Available,
+        Rotating,
+        Moving,
+        Waiting,
+        Unavailable,
+        Scared
+    };
     
     private Animator m_animator;
 
@@ -242,5 +249,15 @@ public class SheepMovement : NetworkMessageHandler
     public void setState(int state)
     {
         this.state = state;
+    }
+
+    public void setAvailable()
+    {
+        this.state = (int)State.Available;
+    }
+
+    public void setUnavailable()
+    {
+        this.state = (int)State.Unavailable;
     }
 }
