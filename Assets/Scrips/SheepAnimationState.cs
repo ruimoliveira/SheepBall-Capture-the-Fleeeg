@@ -91,7 +91,7 @@ namespace SheepAnimationState
 
                 default:
 
-                    return this;
+                    return new Iddle(ref this.m_animator); //TODO: change
             }
         }
     }
