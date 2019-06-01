@@ -1,32 +1,53 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using SheepAnimationState;
 
-public class SheepMovement : MonoBehaviour
+public class SheepMovement : NetworkMessageHandler
 {
     public Transform sheep_transform;
     public Rigidbody m_Rigidbody;
     private int state = (int)State.Available;
     private Vector3 targetDestination;
     private Quaternion targetRotation;
-    private float rotationSpeed = 500f;
-    private float movingSpeed = 5f;
-    private float scaredRotationSpeed = 1000f;
-    private float scaredMovingSpeed = 2f;
 
+    private const float ROTATION_SPEED = 500f;
+    private const float MOVING_SPEED = 5f;
+    private const float SCARED_ROTATION_SPEED = 1000f;
+    private const float SCARED_MOVING_SPEED = 2f;
+
+    int prevState = -1;
     private IAnimState animState;
 
     private Animator m_animator;
 
-    public void SetAnimState(IAnimState animStateArg)
-    {
-        animState = animStateArg;
-    }
+    [Header("Sheep Properties")]
+    public string sheepID;
+
+    [Header("Sheep Movement Properties")]
+    public bool canSendNetworkMovement;
+    public float speed;
+    public float networkSendRate = 5;
+    public float timeBetweenMovementStart;
+    public float timeBetweenMovementEnd;
+
+    [Header("Lerping Properties")]
+    public bool isLerpingPosition;
+    public bool isLerpingRotation;
+    public Vector3 realPosition;
+    public Quaternion realRotation;
+    public Vector3 lastRealPosition;
+    public Quaternion lastRealRotation;
+    public float timeStartedLerping;
+    public float timeToLerp;
 
     // Start is called before the first frame update
     void Start()
     {
+        sheepID = "sheep" + GetComponent<NetworkIdentity>().netId.ToString();
+        transform.name = sheepID;
+
         m_animator = GetComponentInChildren<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
 
@@ -37,10 +58,17 @@ public class SheepMovement : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+
+        if (!isServer)
+        {
+            NetworkLerp();
+            return;
+        }
+
         switch (state)
         {
             case (int)State.Rotating:
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, ROTATION_SPEED * Time.fixedDeltaTime);
                 float angle = Quaternion.Angle(transform.rotation, targetRotation);
                 if (angle == 0)
                     state = (int)State.Moving;
@@ -49,24 +77,30 @@ public class SheepMovement : MonoBehaviour
 
             case (int)State.Moving:
 
-                sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, movingSpeed * Time.fixedDeltaTime);
+                sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, MOVING_SPEED * Time.fixedDeltaTime);
                 if (Vector3.Distance(sheep_transform.position, targetDestination) < 0.001f)
                     state = (int)State.Waiting;
 
                 break;
 
             case (int)State.Scared:
-                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, scaredRotationSpeed * Time.fixedDeltaTime);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, SCARED_ROTATION_SPEED * Time.fixedDeltaTime);
 
-                sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, scaredMovingSpeed * Time.fixedDeltaTime);
-
+                sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, SCARED_MOVING_SPEED * Time.fixedDeltaTime);
+                
                 break;
         }
 
         animState = animState.next(state);
 
-    }
+        if (!canSendNetworkMovement)
+        {
+            canSendNetworkMovement = true;
+            StartCoroutine(StartNetworkSendCooldown());
+        }
 
+    }
+    
     public IEnumerator move()
     {
         float x_displace = Random.Range(-10.0f, 10.0f);
@@ -111,6 +145,81 @@ public class SheepMovement : MonoBehaviour
         state = (int)State.Available;
     }
 
+    public void localMove(Vector3 _position, Quaternion _rotation, float _timeToLerp, int anim_index)
+    {
+        int previous_anim_index = m_animator.GetInteger("AnimIndex");
+        if(previous_anim_index != anim_index)
+        {
+            m_animator.SetInteger("AnimIndex", anim_index);
+            m_animator.SetTrigger("Next");
+        }
+
+        lastRealPosition = realPosition;
+        lastRealRotation = realRotation;
+        realPosition = _position;
+        realRotation = _rotation;
+        timeToLerp = _timeToLerp;
+
+        if (realPosition != transform.position)
+        {
+            isLerpingPosition = true;
+        }
+
+        if (realRotation.eulerAngles != transform.rotation.eulerAngles)
+        {
+            isLerpingRotation = true;
+        }
+
+        timeStartedLerping = Time.time;
+    }
+
+    private IEnumerator StartNetworkSendCooldown()
+    {
+        timeBetweenMovementStart = Time.time;
+        yield return new WaitForSeconds((1 / networkSendRate));
+        SendNetworkMovement();
+    }
+
+    private void SendNetworkMovement()
+    {
+        timeBetweenMovementEnd = Time.time;
+        int anim_index = m_animator.GetInteger("AnimIndex");
+        SendMovementMessage(sheepID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart), anim_index);
+        canSendNetworkMovement = false;
+    }
+
+    public void SendMovementMessage(string _sheepID, Vector3 _position, Quaternion _rotation, float _timeTolerp, int anim_index)
+    {
+        SheepMovementMessage _msg = new SheepMovementMessage()
+        {
+            objectPosition = _position,
+            objectRotation = _rotation,
+            objectTransformName = _sheepID,
+            time = _timeTolerp,
+            objectAnimation = anim_index
+        };
+
+        //NetworkServer.SendToAll(sheep_movement_msg, _msg);
+        NetworkManager.singleton.client.Send(sheep_movement_msg, _msg);
+    }
+
+    private void NetworkLerp()
+    {
+        if (isLerpingPosition)
+        {
+            float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
+
+            sheep_transform.position = Vector3.Lerp(lastRealPosition, realPosition, lerpPercentage);
+        }
+
+        if (isLerpingRotation)
+        {
+            float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
+
+            sheep_transform.rotation = Quaternion.Lerp(lastRealRotation, realRotation, lerpPercentage);
+        }
+    }
+    
     public int getState()
     {
         return state;
@@ -131,5 +240,8 @@ public class SheepMovement : MonoBehaviour
         this.state = (int)State.Unavailable;
     }
 
-
+    public void SetAnimState(IAnimState animStateArg)
+    {
+        animState = animStateArg;
+    }
 }

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System;
 using System.Threading;
 using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.Networking.NetworkSystem;
+using PlayerManager;
 
-public class SheepAI : MonoBehaviour
+public class SheepAI : NetworkMessageHandler
 {
     private GameObject[] players;
     private List<GameObject> sheeps = new List<GameObject>();
@@ -20,7 +23,6 @@ public class SheepAI : MonoBehaviour
     void Start()
     {
         players = GameObject.FindGameObjectsWithTag("Player");
-        Debug.Log("players: " + players.Length);
 
         updateSheeps();
     }
@@ -28,6 +30,10 @@ public class SheepAI : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        //SheepAi only runs in Server
+        if (!isServer)
+            return;
+
         timer -= Time.deltaTime;
 
         // TO DO: overwrite the 'sheeps' variable every frame OR the spawn script overwrites this 'sheeps' variable when a change happens
@@ -42,6 +48,7 @@ public class SheepAI : MonoBehaviour
         }
     }
 
+    //updates sheep array
     public void updateSheeps()
     {
         sheeps.Clear();
@@ -86,6 +93,7 @@ public class SheepAI : MonoBehaviour
             {
                 var opposite_direction = sheep.transform.position - player.transform.position;
                 sheep_script.scare(opposite_direction);
+                
             }
             else if(sheep_script.getState() == (int)State.Scared && distance >= SCARE_DISTANCE)
             {
@@ -154,6 +162,22 @@ public class SheepAI : MonoBehaviour
         {
             var sheep_script = sheep.GetComponent<SheepMovement>();
             StartCoroutine(sheep_script.move());
+        }
+    }
+
+    public void receiveSheepMessage(NetworkMessage _message)
+    {
+        //server does not care about receiving messages
+        if(isServer)
+            return;
+
+        SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
+
+        GameObject sheep = GameObject.Find(_msg.objectTransformName);
+
+        if(sheep != null)
+        {
+            sheep.GetComponent<SheepMovement>().localMove(_msg.objectPosition, _msg.objectRotation, _msg.time, _msg.objectAnimation);
         }
     }
 

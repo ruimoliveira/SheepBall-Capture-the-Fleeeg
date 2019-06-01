@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class SheepSpawn : MonoBehaviour
+public class SheepSpawn : NetworkBehaviour
 {
     private Vector2 SPAWN_AREA_X_RANGE;
     private Vector2 SPAWN_AREA_Z_RANGE;
@@ -11,29 +12,35 @@ public class SheepSpawn : MonoBehaviour
     private float spawnTimer = 0.0f;
     private bool spawnReady = true;
 
-    private GameObject sheepPrefab;
-    private GameObject sheepCollection;
+    private GameObject sheepPrefab = null;
+    public GameObject sheepCollection;
     private GameObject[] players;
 
     // Start is called before the first frame update
     void Awake()
-    {   
-        this.sheepPrefab = (GameObject)Resources.Load<GameObject>("Prefabs/Sheep");
-        this.sheepCollection = GameObject.Find("/Sheep");
+    {
+        this.sheepPrefab = (GameObject) Resources.Load<GameObject>("Prefabs/Sheep");
+        Debug.Log(this.sheepPrefab != null);
+        // this.sheepCollection = GameObject.Find("/SheepManager");
         this.players = GameObject.FindGameObjectsWithTag("Player");
 
         CalculateSpawnLimits();
 
         // Spawn initial sheep
+        /*
         for (int i = 1; i <= Constants.MAX_NEUTRAL_SHEEP; i++)
         {
             SpawnNewSheep();
-        }
+        }*/
     }
 
     // Update is called once per frame
     void Update()
     {
+        //only server can spawn sheep
+        if (!isServer)
+            return;
+
         if (!this.spawnReady)
         {
             DecreaseTimer(Time.deltaTime);
@@ -50,8 +57,9 @@ public class SheepSpawn : MonoBehaviour
         float randomZ = Random.Range(SPAWN_AREA_Z_RANGE[0], SPAWN_AREA_Z_RANGE[1]);
         Vector3 spawnPosition = new Vector3(randomX, 0.01f, randomZ);
         GameObject newSheep = Instantiate(this.sheepPrefab, spawnPosition, Quaternion.identity);
-
+        
         newSheep.transform.SetParent(this.sheepCollection.transform);
+        Debug.Log("SHEEP COLLECTION: " + this.sheepCollection);
         newSheep.name = "Sheep" + this.sheepCollection.transform.childCount;
 
         foreach (GameObject player in this.players)
@@ -59,9 +67,9 @@ public class SheepSpawn : MonoBehaviour
             Physics.IgnoreCollision(newSheep.GetComponent<Collider>(), player.GetComponent<Collider>()); // Ignore collision with players
         }
 
+        NetworkServer.Spawn(newSheep);
         this.sheepCollection.GetComponent<SheepAI>().updateSheeps();
-        Debug.Log("SHEEP SPAWNED AT POS" + spawnPosition.ToString());
-
+        
         StartTimer();
     }
 
