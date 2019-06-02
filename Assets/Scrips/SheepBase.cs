@@ -15,6 +15,14 @@ public class SheepBase : MonoBehaviour
     {
         // Set base color
         GetComponent<Renderer>().material.SetColor("_Color", this.GetColor());
+
+        // Ignore collision between player and base wall
+        GameObject[] players = GameObject.FindGameObjectsWithTag(Constants.PLAYER_TAG);
+        GameObject baseWall = transform.Find("BaseWall").gameObject;
+        foreach (GameObject player in players)
+        {
+            Physics.IgnoreCollision(baseWall.GetComponent<Collider>(), player.GetComponent<Collider>());
+        }
     }
 
     // Update is called once per frame

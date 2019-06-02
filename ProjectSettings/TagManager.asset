@@ -12,6 +12,7 @@ TagManager:
   - Sheep
   - Trajectory
   - SheepManager
+  - BaseWall
   layers:
   - Default
   - TransparentFX

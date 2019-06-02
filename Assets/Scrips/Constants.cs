@@ -3,6 +3,8 @@
 public static class Constants
 {
     public const string SHEEP_TAG = "Sheep";
+    public const string PLAYER_TAG = "Player";
+    public const string BASE_WALL_TAG = "BaseWall";
     public const string SPAWN_AREA_NAME = "SpawnArea";
     public const int MAX_NEUTRAL_SHEEP = 10;
     public const int MAX_SHEEP_CARRIED = 3;
