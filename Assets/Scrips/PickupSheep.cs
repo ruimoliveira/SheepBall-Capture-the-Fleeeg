@@ -8,6 +8,7 @@ public class PickupSheep : MonoBehaviour
     List<GameObject> sheepColliding;
     Stack<GameObject> sheepPickedup;
     ThirdPersonUserControl userControls;
+    GameObject[] baseWalls;
 
     public Stack<GameObject> getSheepStack()
     {
@@ -19,6 +20,7 @@ public class PickupSheep : MonoBehaviour
         userControls = GetComponent<ThirdPersonUserControl>();
         sheepPickedup = new Stack<GameObject>();
         sheepColliding = new List<GameObject>();
+        baseWalls = GameObject.FindGameObjectsWithTag(Constants.BASE_WALL_TAG);
 
         // Ignore collision between player and sheep
         GameObject[] allSheep = GameObject.FindGameObjectsWithTag(Constants.SHEEP_TAG);
@@ -77,6 +79,7 @@ public class PickupSheep : MonoBehaviour
 
         GameObject droppedSheep = sheepPickedup.Pop();
         droppedSheep.GetComponent<SheepMovement>().setAvailable();
+        sheepCollideWithBases(droppedSheep);
         changePlayerSpeed();
 
         Rigidbody rb = droppedSheep.GetComponent<Rigidbody>();
@@ -92,7 +95,8 @@ public class PickupSheep : MonoBehaviour
         sheepColliding.RemoveAt(0);
        
         sheepToPickup.GetComponent<SheepMovement>().setUnavailable();
- 
+        sheepGhostBases(sheepToPickup);
+        
         Rigidbody rb = sheepToPickup.GetComponent<Rigidbody>();
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
@@ -149,4 +153,21 @@ public class PickupSheep : MonoBehaviour
         }
     }
     
+    // Avoid sheep from colliding with base walls
+    private void sheepGhostBases(GameObject sheep)
+    {
+        foreach (GameObject wall in baseWalls)
+        {
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>());
+        }
+    }
+
+    // Allow sheep to collide with base walls
+    private void sheepCollideWithBases(GameObject sheep)
+    {
+        foreach (GameObject wall in baseWalls)
+        {
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>(), false);
+        }
+    }
 }
