@@ -30,7 +30,7 @@ public class SheepAI : NetworkMessageHandler
     // Update is called once per frame
     void FixedUpdate()
     {
-        //SheepAi only runs in Server
+        //SheepAI only runs in Server
         if (!isServer)
             return;
 
@@ -93,7 +93,6 @@ public class SheepAI : NetworkMessageHandler
             {
                 var opposite_direction = sheep.transform.position - player.transform.position;
                 sheep_script.scare(opposite_direction);
-                
             }
             else if(sheep_script.getState() == (int)State.Scared && distance >= SCARE_DISTANCE)
             {
@@ -180,7 +179,6 @@ public class SheepAI : NetworkMessageHandler
         Debug.Log("SHEEP COLLECTION: " + transform);
         // sheep.name = "Sheep" + transform.childCount;
 
-        Debug.Log("num players: " + this.players.Length);
         foreach (GameObject player in this.players)
         {
             Physics.IgnoreCollision(sheep.GetComponent<Collider>(), player.GetComponent<Collider>()); // Ignore collision with players
