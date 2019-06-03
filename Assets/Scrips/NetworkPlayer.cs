@@ -40,8 +40,21 @@ public class NetworkPlayer : NetworkMessageHandler
 
         playerID = "player" + GetComponent<NetworkIdentity>().netId.ToString();
         transform.name = playerID;
+
         Manager.Instance.AddPlayerToConnectedPlayers(playerID, gameObject);
 
+        // Ignore collision between base and players
+        GameObject[] baseWalls = GameObject.FindGameObjectsWithTag(Constants.BASE_WALL_TAG);
+        Collider playerCollider = transform.Find("Graphics").GetComponent<Collider>();
+        Debug.Log("num bases " + baseWalls.Length);
+        Debug.Log("player collider " + playerCollider);
+        foreach (GameObject baseWall in baseWalls)
+        {
+            Debug.Log("base: ");
+            Debug.Log(baseWall);
+            Collider c = GetComponentInChildren<Collider>();
+            Physics.IgnoreCollision(baseWall.GetComponentInChildren<Collider>(), playerCollider);
+        }
 
         if (isLocalPlayer)
         {

@@ -174,11 +174,13 @@ public class SheepAI : NetworkMessageHandler
         SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
 
         GameObject sheep = GameObject.Find(_msg.objectTransformName);
-
+        Debug.Log("sheep name: " + _msg.objectTransformName);
+        Debug.Log("sheep: " + sheep == null);
         sheep.transform.SetParent(transform);
         Debug.Log("SHEEP COLLECTION: " + transform);
-        sheep.name = "Sheep" + transform.childCount;
+        // sheep.name = "Sheep" + transform.childCount;
 
+        Debug.Log("num players: " + this.players.Length);
         foreach (GameObject player in this.players)
         {
             Physics.IgnoreCollision(sheep.GetComponent<Collider>(), player.GetComponent<Collider>()); // Ignore collision with players

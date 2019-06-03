@@ -17,7 +17,7 @@ public class SheepSpawn : NetworkBehaviour
     private GameObject[] players;
 
     // Start is called before the first frame update
-    void Awake()
+    void Start()
     {
         this.sheepPrefab = (GameObject) Resources.Load<GameObject>("Prefabs/Sheep");
         Debug.Log(this.sheepPrefab != null);
@@ -57,7 +57,14 @@ public class SheepSpawn : NetworkBehaviour
         float randomZ = Random.Range(SPAWN_AREA_Z_RANGE[0], SPAWN_AREA_Z_RANGE[1]);
         Vector3 spawnPosition = new Vector3(randomX, 0.01f, randomZ);
         GameObject newSheep = Instantiate(this.sheepPrefab, spawnPosition, Quaternion.identity);
-        
+
+        newSheep.transform.SetParent(this.sheepCollection.transform);
+       
+        foreach (GameObject player in this.players)
+        {
+            Physics.IgnoreCollision(newSheep.GetComponent<Collider>(), player.GetComponent<Collider>()); // Ignore collision with players
+        }
+
         NetworkServer.Spawn(newSheep);
         this.sheepCollection.GetComponent<SheepAI>().updateSheeps();
         
