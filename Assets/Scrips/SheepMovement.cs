@@ -89,6 +89,14 @@ public class SheepMovement : NetworkMessageHandler
                 sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, SCARED_MOVING_SPEED * Time.fixedDeltaTime);
                 
                 break;
+
+            case (int)State.Flying:
+                
+                if ((int)(sheep_transform.position.y*10) == 5)
+                {
+                    state = (int)State.Available;
+                }
+                break;
         }
 
         animState = animState.next(state);
@@ -124,6 +132,9 @@ public class SheepMovement : NetworkMessageHandler
 
     public void scare(Vector3 direction)//TO DO: test + change to continuous movement
     {
+        if (state == (int)State.Flying)
+            return;
+
         float magnitude = Mathf.Sqrt((direction.x * direction.x) + (direction.z * direction.z));
 
         float x_normalized = direction.x / magnitude;
@@ -233,6 +244,11 @@ public class SheepMovement : NetworkMessageHandler
     public void setAvailable()
     {
         this.state = (int)State.Available;
+    }
+
+    public void setFlying()
+    {
+        this.state = (int)State.Flying;
     }
 
     public void setUnavailable()

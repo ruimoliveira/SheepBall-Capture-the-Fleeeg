@@ -78,7 +78,8 @@ public class PickupSheep : MonoBehaviour
             return null;
 
         GameObject droppedSheep = sheepPickedup.Pop();
-        droppedSheep.GetComponent<SheepMovement>().setAvailable();
+        //droppedSheep.GetComponent<SheepMovement>().setAvailable();
+        droppedSheep.GetComponent<SheepMovement>().setFlying();
         sheepCollideWithBases(droppedSheep);
         changePlayerSpeed();
 
