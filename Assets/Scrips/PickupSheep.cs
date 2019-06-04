@@ -151,6 +151,8 @@ public class PickupSheep : MonoBehaviour
             sheep.transform.rotation = newR;
             sheep.transform.RotateAround(newV, Vector3.up, -newR.eulerAngles.y);
             sheep.transform.RotateAround(oldNewV, Vector3.up, newR.eulerAngles.y);
+
+            sheep.transform.Rotate(new Vector3(0, 180, 0),Space.Self);
         }
     }
     
