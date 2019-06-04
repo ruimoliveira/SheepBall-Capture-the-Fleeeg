@@ -9,7 +9,7 @@ using PlayerManager;
 
 public class SheepAI : NetworkMessageHandler
 {
-    private GameObject[] players;
+    private List<GameObject> players = new List<GameObject>();
     private List<GameObject> sheeps = new List<GameObject>();
     private List<GameObject> available_sheeps = new List<GameObject>();
 
@@ -18,14 +18,6 @@ public class SheepAI : NetworkMessageHandler
     enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
     private const float TIME_BETWEEN_MOVEMENT = 1f;
     private const float SCARE_DISTANCE = 4f;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        players = GameObject.FindGameObjectsWithTag("Player");
-
-        updateSheeps();
-    }
 
     // Update is called once per frame
     void FixedUpdate()
@@ -36,8 +28,7 @@ public class SheepAI : NetworkMessageHandler
 
         timer -= Time.deltaTime;
 
-        // TO DO: overwrite the 'sheeps' variable every frame OR the spawn script overwrites this 'sheeps' variable when a change happens
-
+        updatePlayers();
         scareSheep();
 
         if (timer <= 0)
@@ -48,24 +39,25 @@ public class SheepAI : NetworkMessageHandler
         }
     }
 
-    //updates sheep array
-    public void updateSheeps()
+    public void updatePlayers()
     {
-        sheeps.Clear();
-        foreach (Transform child in transform)
+        players.Clear();
+        foreach (GameObject p in Manager.Instance.GetConnectedPlayers())
         {
-            var sheep = child.gameObject;
-            sheeps.Add(sheep);
+            players.Add(p.transform.Find("Graphics").gameObject);
         }
+    }
+
+    public void addSheep(GameObject sheep)
+    {
+        sheeps.Add(sheep);
     }
 
     void updateAvailableSheeps()
     {
         available_sheeps.Clear();
-        foreach (Transform child in transform)
+        foreach (GameObject sheep in sheeps)
         {
-            var sheep = child.gameObject;
-
             if (sheep.GetComponent<SheepMovement>().getState() == (int)State.Available)
             {
                 available_sheeps.Add(sheep);
@@ -86,7 +78,6 @@ public class SheepAI : NetworkMessageHandler
         foreach (GameObject sheep in sheeps)
         {
             float distance = Vector3.Distance(player.transform.position, sheep.transform.position);
-
             var sheep_script = sheep.GetComponent<SheepMovement>();
 
             if (sheep_script.getState() != (int)State.Unavailable && distance < SCARE_DISTANCE)
@@ -173,12 +164,7 @@ public class SheepAI : NetworkMessageHandler
         SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
 
         GameObject sheep = GameObject.Find(_msg.objectTransformName);
-        Debug.Log("sheep name: " + _msg.objectTransformName);
-        Debug.Log("sheep: " + sheep == null);
         sheep.transform.SetParent(transform);
-        Debug.Log("SHEEP COLLECTION: " + transform);
-        // sheep.name = "Sheep" + transform.childCount;
-
         foreach (GameObject player in this.players)
         {
             Physics.IgnoreCollision(sheep.GetComponent<Collider>(), player.GetComponent<Collider>()); // Ignore collision with players

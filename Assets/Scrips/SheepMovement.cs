@@ -58,7 +58,6 @@ public class SheepMovement : NetworkMessageHandler
     // Update is called once per frame
     void FixedUpdate()
     {
-
         if (!isServer)
         {
             NetworkLerp();
@@ -158,10 +157,10 @@ public class SheepMovement : NetworkMessageHandler
 
     public void localMove(Vector3 _position, Quaternion _rotation, float _timeToLerp, int anim_index)
     {
-        int previous_anim_index = m_animator.GetInteger("AnimIndex");
+        int previous_anim_index = m_animator.GetInteger("Index");
         if(previous_anim_index != anim_index)
         {
-            m_animator.SetInteger("AnimIndex", anim_index);
+            m_animator.SetInteger("Index", anim_index);
             m_animator.SetTrigger("Next");
         }
 
@@ -194,7 +193,7 @@ public class SheepMovement : NetworkMessageHandler
     private void SendNetworkMovement()
     {
         timeBetweenMovementEnd = Time.time;
-        int anim_index = m_animator.GetInteger("AnimIndex");
+        int anim_index = m_animator.GetInteger("Index");
         SendMovementMessage(sheepID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart), anim_index);
         canSendNetworkMovement = false;
     }

@@ -36,8 +36,6 @@ public class NetworkPlayer : NetworkMessageHandler
         if(isLocalPlayer)
             RegisterNetworkMessages();
 
-        Debug.Log("NetworkPlayer START");
-
         playerID = "player" + GetComponent<NetworkIdentity>().netId.ToString();
         transform.name = playerID;
 
@@ -46,12 +44,8 @@ public class NetworkPlayer : NetworkMessageHandler
         // Ignore collision between base and players
         GameObject[] baseWalls = GameObject.FindGameObjectsWithTag(Constants.BASE_WALL_TAG);
         Collider playerCollider = transform.Find("Graphics").GetComponent<Collider>();
-        Debug.Log("num bases " + baseWalls.Length);
-        Debug.Log("player collider " + playerCollider);
         foreach (GameObject baseWall in baseWalls)
         {
-            Debug.Log("base: ");
-            Debug.Log(baseWall);
             Collider c = GetComponentInChildren<Collider>();
             Physics.IgnoreCollision(baseWall.GetComponentInChildren<Collider>(), playerCollider);
         }
@@ -61,12 +55,7 @@ public class NetworkPlayer : NetworkMessageHandler
             Manager.Instance.SetLocalPlayerID(playerID);
 
             sheepManager = GameObject.FindGameObjectWithTag("SheepManager");
-            Debug.Log("sheepManager" + sheepManager);
-            //Camera.main.transform.position = transform.position + new Vector3(0, 0, -20);
-            //Camera.main.transform.rotation = Quaternion.Euler(0, 0, 0);
-
             canSendNetworkMovement = false;
-            
         }
         else
         {
@@ -86,6 +75,8 @@ public class NetworkPlayer : NetworkMessageHandler
     {
         GetComponentInChildren<ThirdPersonUserControl>().enabled = false;
         GetComponentInChildren<ThirdPersonCharacter>().enabled = false;
+        GetComponentInChildren<PickupSheep>().enabled = false;
+        GetComponentInChildren<ShootSheep>().enabled = false;
         GetComponentInChildren<FreeLookCam>().enabled = false;
         GetComponentInChildren<ProtectCameraFromWallClip>().enabled = false;
         GetComponentInChildren<Camera>().enabled = false;
@@ -97,7 +88,6 @@ public class NetworkPlayer : NetworkMessageHandler
         //player movement
         NetworkManager.singleton.client.RegisterHandler(player_movement_msg, OnReceiveMovementMessage);
         //sheep movement
-        Debug.Log("Registei o handler das sheep");
         NetworkManager.singleton.client.RegisterHandler(sheep_movement_msg, OnReceiveSheepMovementMessage);
     }
 
@@ -144,8 +134,6 @@ public class NetworkPlayer : NetworkMessageHandler
     //recebe do servidor movement de uma ovelha
     private void OnReceiveSheepMovementMessage(NetworkMessage _message)
     {
-        Debug.Log(playerID + " Recebi mensagem sheep movement");
-        
         sheepManager.GetComponent<SheepAI>().receiveSheepMessage(_message);
     }
 
@@ -171,8 +159,6 @@ public class NetworkPlayer : NetworkMessageHandler
 
     private void SendNetworkMovement()
     {
-        //Debug.Log("posSend :" + this.transform.Find("Graphics").GetComponent<Transform>().position.ToString());
-
         timeBetweenMovementEnd = Time.time;
         SendMovementMessage(playerID,
             this.transform.Find("Graphics").GetComponent<Transform>().position,

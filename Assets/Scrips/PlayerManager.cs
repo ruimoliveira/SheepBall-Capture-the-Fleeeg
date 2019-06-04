@@ -77,5 +77,17 @@ namespace PlayerManager
 
             return null;
         }
+
+        public List<GameObject> getPlayerGraphics()
+        {
+            List<GameObject> playerGraphics = new List<GameObject>();
+
+            foreach (GameObject connectedPlayer in Instance.GetConnectedPlayers())
+            {
+                playerGraphics.Add(connectedPlayer.transform.Find("Graphics").gameObject);
+            }
+
+            return playerGraphics;
+        }
     }
 }
