@@ -16,11 +16,11 @@ public class SheepMovement : NetworkMessageHandler
     private const float MOVING_SPEED = 5f;
     private const float SCARED_ROTATION_SPEED = 1000f;
     private const float SCARED_MOVING_SPEED = 2f;
-
-    int prevState = -1;
+    private const float sheepFeetFromFloor = 2;
     private IAnimState animState;
 
     private Animator m_animator;
+    private TerrainData m_arena;
 
     [Header("Sheep Properties")]
     public string sheepID;
@@ -50,7 +50,7 @@ public class SheepMovement : NetworkMessageHandler
 
         m_animator = GetComponentInChildren<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
-
+        m_arena = GameObject.FindGameObjectWithTag("Arena").GetComponent<Terrain>().terrainData;
         
         animState = new Iddle(ref m_animator);
     }
@@ -78,7 +78,7 @@ public class SheepMovement : NetworkMessageHandler
             case (int)State.Moving:
 
                 sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, MOVING_SPEED * Time.fixedDeltaTime);
-                if (Vector3.Distance(sheep_transform.position, targetDestination) < 0.001f)
+                if (Vector3.Distance(sheep_transform.position, targetDestination) < 0.01f)
                     state = (int)State.Waiting;
 
                 break;
@@ -91,9 +91,10 @@ public class SheepMovement : NetworkMessageHandler
                 break;
 
             case (int)State.Flying:
-                
-                if ((int)(sheep_transform.position.y*10) == 5)
+
+                if ((int)(sheep_transform.position.y*10) <= (int)(getHeightOfTerrainAt() + sheepFeetFromFloor) * 10)
                 {
+                    Debug.Log("SHEEP: " + (sheep_transform.position.y) + " TERRAIN: " + ((getHeightOfTerrainAt() + sheepFeetFromFloor)));
                     state = (int)State.Available;
                 }
                 break;
@@ -107,6 +108,11 @@ public class SheepMovement : NetworkMessageHandler
             StartCoroutine(StartNetworkSendCooldown());
         }
 
+    }
+
+    float getHeightOfTerrainAt()
+    {
+        return Terrain.activeTerrain.SampleHeight(sheep_transform.position);
     }
     
     public IEnumerator move()

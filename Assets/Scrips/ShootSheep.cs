@@ -65,7 +65,7 @@ public class ShootSheep : MonoBehaviour
         trajectory.transform.Rotate(new Vector3(0, 90, 0), Space.Self);
 
         Vector3 cameraPos = camera.transform.position;
-        cameraPos.y = 0.028f * (impulseStrenthArg - InitialImpulseStrenght);
+        cameraPos.y = 0.028f * (impulseStrenthArg - InitialImpulseStrenght) + transform.position.y;
         camera.transform.position = cameraPos;
     }
 
