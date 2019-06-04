@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
+using PlayerManager;
 
 public class SheepSpawn : NetworkBehaviour
 {
@@ -14,24 +15,15 @@ public class SheepSpawn : NetworkBehaviour
 
     private GameObject sheepPrefab = null;
     public GameObject sheepCollection;
-    private GameObject[] players;
+    private List<GameObject> players = new List<GameObject>();
 
     // Start is called before the first frame update
     void Start()
     {
         this.sheepPrefab = (GameObject) Resources.Load<GameObject>("Prefabs/Sheep");
-        Debug.Log(this.sheepPrefab != null);
-        // this.sheepCollection = GameObject.Find("/SheepManager");
-        this.players = GameObject.FindGameObjectsWithTag("Player");
+        this.players = Manager.Instance.getPlayerGraphics();
 
         CalculateSpawnLimits();
-
-        // Spawn initial sheep
-        /*
-        for (int i = 1; i <= Constants.MAX_NEUTRAL_SHEEP; i++)
-        {
-            SpawnNewSheep();
-        }*/
     }
 
     // Update is called once per frame
@@ -56,8 +48,8 @@ public class SheepSpawn : NetworkBehaviour
         float randomX = Random.Range(SPAWN_AREA_X_RANGE[0], SPAWN_AREA_X_RANGE[1]);
         float randomZ = Random.Range(SPAWN_AREA_Z_RANGE[0], SPAWN_AREA_Z_RANGE[1]);
         Vector3 spawnPosition = new Vector3(randomX, 0.01f, randomZ);
-        GameObject newSheep = Instantiate(this.sheepPrefab, spawnPosition, Quaternion.identity);
 
+        GameObject newSheep = Instantiate(this.sheepPrefab, spawnPosition, Quaternion.identity);
         newSheep.transform.SetParent(this.sheepCollection.transform);
        
         foreach (GameObject player in this.players)
@@ -66,7 +58,8 @@ public class SheepSpawn : NetworkBehaviour
         }
 
         NetworkServer.Spawn(newSheep);
-        this.sheepCollection.GetComponent<SheepAI>().updateSheeps();
+
+        this.sheepCollection.GetComponent<SheepAI>().addSheep(newSheep);
         
         StartTimer();
     }
@@ -99,11 +92,11 @@ public class SheepSpawn : NetworkBehaviour
         this.SPAWN_AREA_X_RANGE = new Vector2(spawnAreaPosition.x - spawnHalfSize.x, spawnAreaPosition.x + spawnHalfSize.x);
         this.SPAWN_AREA_Z_RANGE = new Vector2(spawnAreaPosition.z - spawnHalfSize.z, spawnAreaPosition.z + spawnHalfSize.z);
 
-        Debug.Log("SPAWN BASE SIZE" + spawnBaseSize.ToString());
+        /*Debug.Log("SPAWN BASE SIZE" + spawnBaseSize.ToString());
         Debug.Log("SPAWN SCALE" + spawnScale.ToString());
         Debug.Log("SPAWN REAL SIZE" + spawnHalfSize.ToString());
         Debug.Log("SPAWN CENTER" + spawnAreaPosition);
         Debug.Log("SPAWN X RANGE" + SPAWN_AREA_X_RANGE[0]);
-        Debug.Log("SPAWN Z RANGE" + SPAWN_AREA_Z_RANGE[1]);
+        Debug.Log("SPAWN Z RANGE" + SPAWN_AREA_Z_RANGE[1]);*/
     }
 }

@@ -21,13 +21,6 @@ public class PickupSheep : MonoBehaviour
         sheepPickedup = new Stack<GameObject>();
         sheepColliding = new List<GameObject>();
         baseWalls = GameObject.FindGameObjectsWithTag(Constants.BASE_WALL_TAG);
-
-        // Ignore collision between player and sheep
-        GameObject[] allSheep = GameObject.FindGameObjectsWithTag(Constants.SHEEP_TAG);
-        foreach (GameObject sheep in allSheep)
-        {
-            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), GetComponent<Collider>());
-        }
     }
 
     private void OnTriggerEnter(Collider body)
