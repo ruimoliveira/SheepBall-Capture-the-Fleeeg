@@ -174,7 +174,7 @@ public class SheepAI : NetworkMessageHandler
         }
     }
 
-    public void processSheepPickedUpMessage(PickedUpSheepMessage _msg)
+    public void processPickedUpSheepMessage(PickedUpSheepMessage _msg)
     {
         GameObject sheep = GameObject.Find(_msg.sheepName);
        
@@ -186,9 +186,26 @@ public class SheepAI : NetworkMessageHandler
             sheep_rb.velocity = Vector3.zero;
             sheep_rb.angularVelocity = Vector3.zero;
             sheep_rb.useGravity = false;
+
             sheep_movement.setPickedUpBy(_msg.playerName);
             sheep_movement.setState(_msg.sheepState);
             sheep_movement.localMove(_msg.sheepPosition, _msg.sheepRotation, _msg.time, _msg.sheepAnimation);
+        }
+    }
+    public void processDroppedSheepMessage(DroppedSheepMessage _msg)
+    {
+        GameObject sheep = GameObject.Find(_msg.sheepName);
+
+        if (sheep != null)
+        {
+            SheepMovement sheep_movement = sheep.GetComponent<SheepMovement>();
+            Rigidbody sheep_rb = sheep.GetComponent<Rigidbody>();
+
+            sheep_rb.velocity = Vector3.zero;
+            sheep_rb.useGravity = true;
+
+            sheep_movement.setPickedUpBy("");
+            sheep_movement.setState(_msg.sheepState);
         }
     }
 

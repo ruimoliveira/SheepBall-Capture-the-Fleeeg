@@ -80,6 +80,9 @@ public class NetworkPlayer : NetworkMessageHandler
 
         //picked up sheep
         NetworkManager.singleton.client.RegisterHandler(picked_up_sheep_message, OnReceivePickedUpSheepMessage);
+
+        //dropped sheep
+        NetworkManager.singleton.client.RegisterHandler(dropped_sheep_message, OnReceiveDroppedSheepMessage);
     }
 
     //impedir jogador nao local de receber input
@@ -144,7 +147,18 @@ public class NetworkPlayer : NetworkMessageHandler
 
         if (_msg.playerName != transform.name)
         {
-            sheepManager.GetComponent<SheepAI>().processSheepPickedUpMessage(_msg);
+            sheepManager.GetComponent<SheepAI>().processPickedUpSheepMessage(_msg);
+        }
+    }
+
+    //recebe do servidor uma droppedsheep message
+    private void OnReceiveDroppedSheepMessage(NetworkMessage _message)
+    {
+        DroppedSheepMessage _msg = _message.ReadMessage<DroppedSheepMessage>();
+
+        if (_msg.playerName != transform.name)
+        {
+            sheepManager.GetComponent<SheepAI>().processDroppedSheepMessage(_msg);
         }
     }
 

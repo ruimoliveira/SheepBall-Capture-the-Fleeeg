@@ -68,8 +68,8 @@ public class PickupSheep : NetworkMessageHandler
 
         GameObject[] carrying = sheepPickedup.ToArray();
         foreach(GameObject sheep in carrying){
-            int anim_index = sheep.GetComponentInChildren<Animator>().GetInteger("Index");
             int state = sheep.GetComponent<SheepMovement>().getState();
+            int anim_index = sheep.GetComponentInChildren<Animator>().GetInteger("Index");
             SendPickedUpSheepMessage(sheep.transform.name, sheep.transform.position, sheep.transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart), state, anim_index);
         }
 
@@ -93,22 +93,19 @@ public class PickupSheep : NetworkMessageHandler
         NetworkManager.singleton.client.Send(picked_up_sheep_message, _msg);
     }
 
-    /*public void SendDroppedSheepMessage(string _sheepID, Vector3 _position, Quaternion _rotation, float _timeTolerp, int state, int anim_index)
+    public void SendDroppedSheepMessage(string _sheepID, int state, int anim_index)
     {
-        PickedUpSheepMessage _msg = new PickedUpSheepMessage()
+        DroppedSheepMessage _msg = new DroppedSheepMessage()
         {
             playerName = transform.name,
             sheepName = _sheepID,
-            sheepPosition = _position,
-            sheepRotation = _rotation,
-            time = _timeTolerp,
             sheepState = state,
             sheepAnimation = anim_index
         };
 
         //NetworkServer.SendToAll(sheep_movement_msg, _msg);
-        NetworkManager.singleton.client.Send(picked_up_sheep_message, _msg);
-    }*/
+        NetworkManager.singleton.client.Send(dropped_sheep_message, _msg);
+    }
 
     private void OnTriggerEnter(Collider body)
     {
@@ -159,18 +156,22 @@ public class PickupSheep : NetworkMessageHandler
 
         GameObject droppedSheep = sheepPickedup.Pop();
 
+        SheepMovement droppedSheep_movement = droppedSheep.GetComponentInChildren<SheepMovement>();
+        Animator droppedSheep_animator = droppedSheep.GetComponentInChildren<Animator>();
+        Rigidbody droppedSheep_rb = droppedSheep.GetComponent<Rigidbody>();
+
         // set state to available and anim state to iddle
-        droppedSheep.GetComponentInChildren<SheepMovement>().setAvailable();
-        Animator m_animator = droppedSheep.GetComponentInChildren<Animator>();
-        IAnimState animState = new Iddle(ref m_animator);
-        droppedSheep.GetComponentInChildren<SheepMovement>().SetAnimState(animState);
+        droppedSheep_movement.setAvailable();
+        IAnimState animState = new Iddle(ref droppedSheep_animator);
+        droppedSheep_movement.SetAnimState(animState);
 
         sheepCollideWithBases(droppedSheep);
         changePlayerSpeed();
 
-        Rigidbody rb = droppedSheep.GetComponent<Rigidbody>();
-        rb.velocity = new Vector3(0, 0, 0);
-        rb.useGravity = true;
+        droppedSheep_rb.velocity = Vector3.zero;
+        droppedSheep_rb.useGravity = true;
+
+        SendDroppedSheepMessage(droppedSheep.transform.name, droppedSheep_movement.getState(), droppedSheep_animator.GetInteger("Index"));
 
         return droppedSheep;
     }
@@ -179,22 +180,21 @@ public class PickupSheep : NetworkMessageHandler
     {
         GameObject sheepToPickup = sheepColliding[0];
         sheepColliding.RemoveAt(0);
-       
-        sheepToPickup.GetComponent<SheepMovement>().setUnavailable();
+
+        SheepMovement sheepToPickup_movement = sheepToPickup.GetComponentInChildren<SheepMovement>();
+        Animator sheepToPickup_animator = sheepToPickup.GetComponentInChildren<Animator>();
+        Rigidbody sheepToPickup_rb = sheepToPickup.GetComponent<Rigidbody>();
 
         // set state to unavaiable and anim state to ball
-        sheepToPickup.GetComponentInChildren<SheepMovement>().setUnavailable();
-        Animator m_animator = sheepToPickup.GetComponentInChildren<Animator>();
-        IAnimState animState = new Ball(ref m_animator);
-        sheepToPickup.GetComponentInChildren<SheepMovement>().SetAnimState(animState);
+        sheepToPickup_movement.setUnavailable();
+        IAnimState animState = new Ball(ref sheepToPickup_animator);
+        sheepToPickup_movement.SetAnimState(animState);
         
-
         sheepGhostBases(sheepToPickup);
-        
-        Rigidbody rb = sheepToPickup.GetComponent<Rigidbody>();
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        rb.useGravity = false;
+
+        sheepToPickup_rb.velocity = Vector3.zero;
+        sheepToPickup_rb.angularVelocity = Vector3.zero;
+        sheepToPickup_rb.useGravity = false;
 
         sheepPickedup.Push(sheepToPickup);
         changePlayerSpeed();

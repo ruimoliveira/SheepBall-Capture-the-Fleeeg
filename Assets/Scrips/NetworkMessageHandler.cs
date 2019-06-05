@@ -9,7 +9,8 @@ public abstract class NetworkMessageHandler : NetworkBehaviour
     public const short player_movement_msg = 1000;
     public const short sheep_movement_msg = 1001;
     public const short picked_up_sheep_message = 1002;
-    public const short match_info_msg = 1003;
+    public const short dropped_sheep_message = 1003;
+    public const short match_info_msg = 1004;
 
     public class PlayerMovementMessage : MessageBase
     {
@@ -35,6 +36,13 @@ public abstract class NetworkMessageHandler : NetworkBehaviour
         public Vector3 sheepPosition;
         public Quaternion sheepRotation;
         public float time;
+        public int sheepState;
+        public int sheepAnimation;
+    }
+    public class DroppedSheepMessage : MessageBase
+    {
+        public string playerName;
+        public string sheepName;
         public int sheepState;
         public int sheepAnimation;
     }
