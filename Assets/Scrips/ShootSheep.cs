@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class ShootSheep : MonoBehaviour
 {
     private PickupSheep pickupSheep;
-    private GameObject camera;
+    public GameObject camera;
     private GameObject shotNextFrame = null;
     private const float InitialImpulseStrenght = 25;
     private const float InitialImpulseAccel = 5f;
@@ -24,13 +24,11 @@ public class ShootSheep : MonoBehaviour
     private void Awake()
     {
         pickupSheep = gameObject.GetComponent<PickupSheep>();
-        camera = GameObject.FindGameObjectWithTag("Camera");
         impulseUIText = GameObject.FindGameObjectWithTag("ImpulseUI").GetComponent<Text>();
         impulseUIText.text = "Impulse: " + impulseStrenth;
-        trajectory = GameObject.FindGameObjectWithTag("Trajectory");
+        trajectory = transform.Find("trajectory").gameObject;
         trajectoryMeshRenderer = trajectory.GetComponentInChildren<MeshRenderer>();
         trajectoryMeshRendererAim = trajectoryMeshRenderer.gameObject.GetComponentInChildren<SpriteRenderer>();
-
     }
 
     private void orientPlayer()
