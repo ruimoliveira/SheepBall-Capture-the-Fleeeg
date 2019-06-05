@@ -16,27 +16,26 @@ public class NetworkServerRelay : NetworkMessageHandler
 
     private void RegisterNetworkMessages()
     {
-        NetworkServer.RegisterHandler(player_movement_msg, OnReceivePlayerMovementMessage);
+        NetworkServer.RegisterHandler(player_movement_msg, SendPlayerMovement);
         NetworkServer.RegisterHandler(sheep_movement_msg, SendSheepMovement);
+        NetworkServer.RegisterHandler(picked_up_sheep_message, SendSheepPickedUp);
     }
 
-    private void OnReceivePlayerMovementMessage(NetworkMessage _message)
+    private void SendPlayerMovement(NetworkMessage _message)
     {
         PlayerMovementMessage _msg = _message.ReadMessage<PlayerMovementMessage>();
         NetworkServer.SendToAll(player_movement_msg, _msg);
     }
 
-    //TODO check if this is legal
     public void SendSheepMovement(NetworkMessage _message)
     {
         SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
         NetworkServer.SendToAll(sheep_movement_msg, _msg);
     }
 
-    //TODO check if this is legal
-    public void SendmatchInfo(NetworkMessage _message)
+    public void SendSheepPickedUp(NetworkMessage _message)
     {
-        MatchInfoMessage _msg = _message.ReadMessage<MatchInfoMessage>();
-        NetworkServer.SendToAll(match_info_msg, _msg);
+        PickedUpSheepMessage _msg = _message.ReadMessage<PickedUpSheepMessage>();
+        NetworkServer.SendToAll(picked_up_sheep_message, _msg);
     }
 }

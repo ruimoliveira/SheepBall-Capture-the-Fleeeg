@@ -14,7 +14,6 @@ public class NetworkPlayer : NetworkMessageHandler
 
     [Header("Player Movement Properties")]
     public bool canSendNetworkMovement;
-    public float speed;
     public float networkSendRate = 5;
     public float timeBetweenMovementStart;
     public float timeBetweenMovementEnd;
@@ -70,6 +69,19 @@ public class NetworkPlayer : NetworkMessageHandler
         }
     }
 
+    //associar o receber de uma dada mensagem a um handler
+    private void RegisterNetworkMessages()
+    {
+        //player movement
+        NetworkManager.singleton.client.RegisterHandler(player_movement_msg, OnReceivePlayerMovementMessage);
+
+        //sheep movement
+        NetworkManager.singleton.client.RegisterHandler(sheep_movement_msg, OnReceiveSheepMovementMessage);
+
+        //picked up sheep
+        NetworkManager.singleton.client.RegisterHandler(picked_up_sheep_message, OnReceivePickedUpSheepMessage);
+    }
+
     //impedir jogador nao local de receber input
     private void disableLocalPlayerScripts()
     {
@@ -82,48 +94,34 @@ public class NetworkPlayer : NetworkMessageHandler
         GetComponentInChildren<Camera>().enabled = false;
     }
 
-    //associar o receber de uma dada mensagem a um handler
-    private void RegisterNetworkMessages()
-    {
-        //player movement
-        NetworkManager.singleton.client.RegisterHandler(player_movement_msg, OnReceiveMovementMessage);
-        //sheep movement
-        NetworkManager.singleton.client.RegisterHandler(sheep_movement_msg, OnReceiveSheepMovementMessage);
-    }
-
     //recebe do servidor movement dos outros players
-    private void OnReceiveMovementMessage(NetworkMessage _message)
+    private void OnReceivePlayerMovementMessage(NetworkMessage _message)
     {
         PlayerMovementMessage _msg = _message.ReadMessage<PlayerMovementMessage>();
 
-        //verifica se a mensagem NAO é a resposta do proprio jogador
+        //verifica se a mensagem NAO e sobre o proprio jogador
         if (_msg.objectTransformName != transform.name)
         {
             //aceder ao player unit de quem enviou a mensagem e atualizar os valores desse jogador
-            Manager.Instance.ConnectedPlayers[_msg.objectTransformName].GetComponent<NetworkPlayer>().ReceiveMovementMessage(_msg.objectPosition, _msg.objectRotation, _msg.time);
+            Manager.Instance.ConnectedPlayers[_msg.objectTransformName].GetComponent<NetworkPlayer>().ProcessPlayerMovementMessage(_msg.objectPosition, _msg.objectRotation, _msg.time);
         }
     }
 
     //atualizar variaveis de lerping vindas de uma mensagem
-    public void ReceiveMovementMessage(Vector3 _position, Quaternion _rotation, float _timeToLerp)
+    public void ProcessPlayerMovementMessage(Vector3 _position, Quaternion _rotation, float _timeToLerp)
     {
-        /*Debug.Log(playerID + " n sou local, atualizar valores");
-        Debug.Log("Pos" + _position.ToString());
-        Debug.Log("Rot" + _rotation.ToString());
-        Debug.Log("Time" + _timeToLerp.ToString());*/
-
         lastRealPosition = realPosition;
         lastRealRotation = realRotation;
         realPosition = _position;
         realRotation = _rotation;
         timeToLerp = _timeToLerp;
 
-        if(realPosition != transform.position)
+        if (realPosition != transform.position)
         {
             isLerpingPosition = true;
         }
 
-        if(realRotation.eulerAngles != transform.rotation.eulerAngles)
+        if (realRotation.eulerAngles != transform.rotation.eulerAngles)
         {
             isLerpingRotation = true;
         }
@@ -134,7 +132,20 @@ public class NetworkPlayer : NetworkMessageHandler
     //recebe do servidor movement de uma ovelha
     private void OnReceiveSheepMovementMessage(NetworkMessage _message)
     {
-        sheepManager.GetComponent<SheepAI>().receiveSheepMessage(_message);
+        SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
+
+        sheepManager.GetComponent<SheepAI>().processSheepMovementMessage(_msg);
+    }
+
+    //recebe do servidor uma pickedupsheep message
+    private void OnReceivePickedUpSheepMessage(NetworkMessage _message)
+    {
+        PickedUpSheepMessage _msg = _message.ReadMessage<PickedUpSheepMessage>();
+
+        if (_msg.playerName != transform.name)
+        {
+            sheepManager.GetComponent<SheepAI>().processSheepPickedUpMessage(_msg);
+        }
     }
 
     private void Update()
@@ -160,14 +171,14 @@ public class NetworkPlayer : NetworkMessageHandler
     private void SendNetworkMovement()
     {
         timeBetweenMovementEnd = Time.time;
-        SendMovementMessage(playerID,
+        SendPlayerMovementMessage(playerID,
             this.transform.Find("Graphics").GetComponent<Transform>().position,
             this.transform.Find("Graphics").GetComponent<Transform>().rotation,
             (timeBetweenMovementEnd - timeBetweenMovementStart));
         canSendNetworkMovement = false;
     }
 
-    public void SendMovementMessage(string _playerID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
+    public void SendPlayerMovementMessage(string _playerID, Vector3 _position, Quaternion _rotation, float _timeTolerp)
     {
         PlayerMovementMessage _msg = new PlayerMovementMessage()
         {
@@ -182,7 +193,7 @@ public class NetworkPlayer : NetworkMessageHandler
 
     private void FixedUpdate()
     {
-        if(!isLocalPlayer)
+        if (!isLocalPlayer)
         {
             NetworkLerp();
         }
@@ -192,14 +203,14 @@ public class NetworkPlayer : NetworkMessageHandler
     private void NetworkLerp()
     {
 
-        if(isLerpingPosition)
+        if (isLerpingPosition)
         {
             float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
 
             this.transform.Find("Graphics").GetComponent<Transform>().position = Vector3.Lerp(lastRealPosition, realPosition, lerpPercentage);
         }
 
-        if(isLerpingRotation)
+        if (isLerpingRotation)
         {
             float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
 

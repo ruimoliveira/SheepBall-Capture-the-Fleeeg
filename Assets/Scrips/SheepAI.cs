@@ -155,24 +155,40 @@ public class SheepAI : NetworkMessageHandler
         }
     }
 
-    public void receiveSheepMessage(NetworkMessage _message)
+    public void processSheepMovementMessage(SheepMovementMessage _msg)
     {
-        //server does not care about receiving messages
+        //server does not care about sheep movement receiving messages
         if(isServer)
             return;
 
-        SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
-
         GameObject sheep = GameObject.Find(_msg.objectTransformName);
-        sheep.transform.SetParent(transform);
-        foreach (GameObject player in this.players)
-        {
-            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), player.GetComponent<Collider>()); // Ignore collision with players
-        }
 
         if (sheep != null)
         {
-            sheep.GetComponent<SheepMovement>().localMove(_msg.objectPosition, _msg.objectRotation, _msg.time, _msg.objectAnimation);
+            SheepMovement sheep_movement = sheep.GetComponent<SheepMovement>();
+
+            if (sheep_movement.getState() != (int)State.Unavailable)
+            {
+                sheep_movement.localMove(_msg.objectPosition, _msg.objectRotation, _msg.time, _msg.objectAnimation);
+            }
+        }
+    }
+
+    public void processSheepPickedUpMessage(PickedUpSheepMessage _msg)
+    {
+        GameObject sheep = GameObject.Find(_msg.sheepName);
+       
+        if (sheep != null)
+        {
+            SheepMovement sheep_movement = sheep.GetComponent<SheepMovement>();
+            Rigidbody sheep_rb = sheep.GetComponent<Rigidbody>();
+
+            sheep_rb.velocity = Vector3.zero;
+            sheep_rb.angularVelocity = Vector3.zero;
+            sheep_rb.useGravity = false;
+            sheep_movement.setPickedUpBy(_msg.playerName);
+            sheep_movement.setState(_msg.sheepState);
+            sheep_movement.localMove(_msg.sheepPosition, _msg.sheepRotation, _msg.time, _msg.sheepAnimation);
         }
     }
 
