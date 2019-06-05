@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityStandardAssets.Characters.ThirdPerson;
 using UnityEngine.Networking;
+using SheepAnimationState;
 
 public class PickupSheep : NetworkMessageHandler
 {
@@ -92,6 +93,23 @@ public class PickupSheep : NetworkMessageHandler
         NetworkManager.singleton.client.Send(picked_up_sheep_message, _msg);
     }
 
+    /*public void SendDroppedSheepMessage(string _sheepID, Vector3 _position, Quaternion _rotation, float _timeTolerp, int state, int anim_index)
+    {
+        PickedUpSheepMessage _msg = new PickedUpSheepMessage()
+        {
+            playerName = transform.name,
+            sheepName = _sheepID,
+            sheepPosition = _position,
+            sheepRotation = _rotation,
+            time = _timeTolerp,
+            sheepState = state,
+            sheepAnimation = anim_index
+        };
+
+        //NetworkServer.SendToAll(sheep_movement_msg, _msg);
+        NetworkManager.singleton.client.Send(picked_up_sheep_message, _msg);
+    }*/
+
     private void OnTriggerEnter(Collider body)
     {
         if (body.tag == Constants.SHEEP_TAG)
@@ -140,8 +158,13 @@ public class PickupSheep : NetworkMessageHandler
             return null;
 
         GameObject droppedSheep = sheepPickedup.Pop();
-        //droppedSheep.GetComponent<SheepMovement>().setAvailable();
-        droppedSheep.GetComponent<SheepMovement>().setFlying();
+
+        // set state to available and anim state to iddle
+        droppedSheep.GetComponentInChildren<SheepMovement>().setAvailable();
+        Animator m_animator = droppedSheep.GetComponentInChildren<Animator>();
+        IAnimState animState = new Iddle(ref m_animator);
+        droppedSheep.GetComponentInChildren<SheepMovement>().SetAnimState(animState);
+
         sheepCollideWithBases(droppedSheep);
         changePlayerSpeed();
 
@@ -158,6 +181,14 @@ public class PickupSheep : NetworkMessageHandler
         sheepColliding.RemoveAt(0);
        
         sheepToPickup.GetComponent<SheepMovement>().setUnavailable();
+
+        // set state to unavaiable and anim state to ball
+        sheepToPickup.GetComponentInChildren<SheepMovement>().setUnavailable();
+        Animator m_animator = sheepToPickup.GetComponentInChildren<Animator>();
+        IAnimState animState = new Ball(ref m_animator);
+        sheepToPickup.GetComponentInChildren<SheepMovement>().SetAnimState(animState);
+        
+
         sheepGhostBases(sheepToPickup);
         
         Rigidbody rb = sheepToPickup.GetComponent<Rigidbody>();
