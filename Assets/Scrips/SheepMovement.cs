@@ -95,6 +95,7 @@ public class SheepMovement : NetworkMessageHandler
                 if ((int)(transform.position.y*10) <= (int)(getHeightOfTerrainAt() + sheepFeetFromFloor) * 10)
                 {
                     Debug.Log("SHEEP: " + (transform.position.y) + " TERRAIN: " + ((getHeightOfTerrainAt() + sheepFeetFromFloor)));
+                    Debug.Log("TODO: DEBUG THIS");
                     state = (int)State.Available;
                 }
                 break;
