@@ -138,8 +138,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13018c41c59d353419e61f77e6692ba2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sheep_transform: {fileID: 7594166734774501721}
-  m_Rigidbody: {fileID: 0}
   sheepID: 
   canSendNetworkMovement: 0
   speed: 0
@@ -271,6 +269,14 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 5274f73c426c9314d8bdd4450ac79c39, type: 2}
+    - target: {fileID: 9500000, guid: 0a05bf711c61bee419c0e0a99462f6f0, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 13700000, guid: 0a05bf711c61bee419c0e0a99462f6f0, type: 3}
+      propertyPath: m_Quality
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0a05bf711c61bee419c0e0a99462f6f0, type: 3}
 --- !u!4 &1678436076892240946 stripped
