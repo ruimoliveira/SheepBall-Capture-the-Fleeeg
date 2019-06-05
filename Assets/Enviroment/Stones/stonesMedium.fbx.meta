@@ -17,7 +17,12 @@ ModelImporter:
     3300000: Icosphere
     4300000: Icosphere
     10800000: Light
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: rock
+    second: {fileID: 2100000, guid: 22b149dd1dbb6c94eb414209590a411b, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

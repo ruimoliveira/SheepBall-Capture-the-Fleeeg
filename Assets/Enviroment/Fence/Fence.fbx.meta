@@ -32,7 +32,17 @@ ModelImporter:
     4300004: 20960_Front_Gable_House_v1_NEW.002
     4300006: Cylinder
     4300008: Cylinder.001
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Metal
+    second: {fileID: 2100000, guid: ba680d47d8b28564996adc2ba952ed8b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wood
+    second: {fileID: 2100000, guid: c6d863c2ca41a314ea96ff55af43c593, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

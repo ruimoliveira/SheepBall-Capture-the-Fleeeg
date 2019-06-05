@@ -90,7 +90,27 @@ ModelImporter:
     4300028: Bricks-Wall02
     4300030: Door
     2186277476908879412: ImportLogs
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Details
+    second: {fileID: 2100000, guid: 0b5bd0e82f2a03445824cc7921c862dc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Roof-Wood
+    second: {fileID: 2100000, guid: 7a297ea88ad138b44b202d0663b69027, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Walls
+    second: {fileID: 2100000, guid: 6c2ce9806c4264340b146cc965c3a033, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Window
+    second: {fileID: 2100000, guid: 820936393b9f3a54fb1f33d8688f5ffa, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
