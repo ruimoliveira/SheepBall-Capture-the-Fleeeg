@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 using PlayerManager;
+using SheepAnimationState;
 
 public class SheepAI : NetworkMessageHandler
 {
@@ -15,9 +16,16 @@ public class SheepAI : NetworkMessageHandler
 
     private float timer = TIME_BETWEEN_MOVEMENT;
 
+    private GameObject[] baseWalls;
+
     enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
     private const float TIME_BETWEEN_MOVEMENT = 1f;
     private const float SCARE_DISTANCE = 4f;
+
+    void Start()
+    {
+         baseWalls = GameObject.FindGameObjectsWithTag(Constants.BASE_WALL_TAG);
+    }
 
     // Update is called once per frame
     void FixedUpdate()
@@ -206,6 +214,37 @@ public class SheepAI : NetworkMessageHandler
 
             sheep_movement.setPickedUpBy("");
             sheep_movement.setState(_msg.sheepState);
+        }
+    }
+
+    public void processShootSheepMessage(ShootSheepMessage _msg)
+    {
+        GameObject sheep = GameObject.Find(_msg.sheepName);
+
+        if (sheep != null)
+        {
+            SheepMovement sheep_movement = sheep.GetComponent<SheepMovement>();
+            Animator sheep_animator = sheep.GetComponentInChildren<Animator>();
+            Rigidbody sheep_rb = sheep.GetComponent<Rigidbody>();
+
+            // set state to flying and anim state to shot
+            sheep_movement.setFlying();
+            IAnimState animState = new Shot(ref sheep_animator);
+            sheep_movement.SetAnimState(animState);
+
+            sheep_rb.velocity = Vector3.zero;
+            sheep_rb.useGravity = true;
+
+            sheepCollideWithBases(sheep);
+            sheep_movement.setPickedUpBy("");
+        }
+    }
+
+    private void sheepCollideWithBases(GameObject sheep)
+    {
+        foreach (GameObject wall in baseWalls)
+        {
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>(), false);
         }
     }
 

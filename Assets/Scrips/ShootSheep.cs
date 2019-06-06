@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
+using SheepAnimationState;
 
-public class ShootSheep : MonoBehaviour
+public class ShootSheep : NetworkMessageHandler
 {
     private PickupSheep pickupSheep;
     public GameObject camera;
-    private GameObject shotNextFrame = null;
     private const float InitialImpulseStrenght = 25;
     private const float InitialImpulseAccel = 5f;
     private const float InitialImpulseSpeed = 10f;
@@ -20,6 +21,7 @@ public class ShootSheep : MonoBehaviour
     private GameObject trajectory;
     private MeshRenderer trajectoryMeshRenderer;
     private SpriteRenderer trajectoryMeshRendererAim;
+    private GameObject[] baseWalls;
 
     private void Awake()
     {
@@ -29,6 +31,7 @@ public class ShootSheep : MonoBehaviour
         trajectory = transform.Find("trajectory").gameObject;
         trajectoryMeshRenderer = trajectory.GetComponentInChildren<MeshRenderer>();
         trajectoryMeshRendererAim = trajectoryMeshRenderer.gameObject.GetComponentInChildren<SpriteRenderer>();
+        baseWalls = GameObject.FindGameObjectsWithTag(Constants.BASE_WALL_TAG);
     }
 
     private void orientPlayer()
@@ -71,7 +74,6 @@ public class ShootSheep : MonoBehaviour
     {
         if (pickupSheep.getSheepStack().Count == 0)
         {
-
             impulseAccel = InitialImpulseAccel;
             impulseStrenthSpeed = InitialImpulseSpeed;
             impulseStrenth = InitialImpulseStrenght;
@@ -82,9 +84,42 @@ public class ShootSheep : MonoBehaviour
 
         orientPlayer();
         pickupSheep.updateSheepRotation();
-        GameObject sheep = pickupSheep.dropSheep();
-        shotNextFrame = sheep;
         hideMira();
+
+        GameObject sheep = pickupSheep.prepareToShoot();
+
+        SheepMovement sheep_movement = sheep.GetComponentInChildren<SheepMovement>();
+        Animator sheep_animator = sheep.GetComponentInChildren<Animator>();
+        Rigidbody sheep_rb = sheep.GetComponent<Rigidbody>();
+
+        // set state to flying and anim state to shot
+        sheep_movement.setFlying();
+        IAnimState animState = new Shot(ref sheep_animator);
+        sheep_movement.SetAnimState(animState);
+
+        sheep_rb.velocity = Vector3.zero;
+        sheep_rb.useGravity = true;
+
+        sheepCollideWithBases(sheep);
+        sheep_movement.setPickedUpBy("");
+
+        SendShootSheepMessage(sheep.transform.name, sheep_movement.getState(), sheep_animator.GetInteger("Index"), impulseStrenth);
+
+        resetImpulseAndUI();
+    }
+
+    public void SendShootSheepMessage(string _sheepID, int state, int anim_index, float impulse)
+    {
+        ShootSheepMessage _msg = new ShootSheepMessage()
+        {
+            playerName = transform.name,
+            sheepName = _sheepID,
+            sheepState = state,
+            sheepAnimation = anim_index,
+            impulse = impulse
+        };
+
+        NetworkManager.singleton.client.Send(shoot_sheep_message, _msg);
     }
 
     private void updateImpulseUI()
@@ -126,7 +161,23 @@ public class ShootSheep : MonoBehaviour
 
     }
 
-    private void checkShootSheep()
+    private void resetImpulseAndUI()
+    {
+        impulseStrenth = InitialImpulseStrenght;
+        impulseStrenthSpeed = InitialImpulseSpeed;
+        impulseAccel = InitialImpulseAccel;
+        updateImpulseUI();
+    }
+
+    private void sheepCollideWithBases(GameObject sheep)
+    {
+        foreach (GameObject wall in baseWalls)
+        {
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>(), false);
+        }
+    }
+
+    /*private void checkShootSheep()
     {
         if (shotNextFrame != null)
         {
@@ -147,5 +198,5 @@ public class ShootSheep : MonoBehaviour
     private void FixedUpdate()
     {
         checkShootSheep();
-    }
+    }*/
 }

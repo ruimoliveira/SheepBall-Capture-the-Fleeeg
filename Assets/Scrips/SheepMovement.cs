@@ -61,7 +61,7 @@ public class SheepMovement : NetworkMessageHandler
             NetworkLerp();
             return;
         }
-        else if (state == (int)State.Unavailable){ //servidor so faz lerp se pickedup sheeps
+        else if (state == (int)State.Unavailable){ //servidor so faz lerp se pickedup sheeps (unica situacao em que cliente tem autoridade sobre elas)
             NetworkLerp();
             return;
         }
@@ -91,13 +91,13 @@ public class SheepMovement : NetworkMessageHandler
                 break;
 
             case (int)State.Flying:
-
+                /*
                 if ((int)(transform.position.y*10) <= (int)(getHeightOfTerrainAt() + sheepFeetFromFloor) * 10)
                 {
                     Debug.Log("SHEEP: " + (transform.position.y) + " TERRAIN: " + ((getHeightOfTerrainAt() + sheepFeetFromFloor)));
                     Debug.Log("TODO: DEBUG THIS");
                     state = (int)State.Available;
-                }
+                }*/
                 break;
         }
 

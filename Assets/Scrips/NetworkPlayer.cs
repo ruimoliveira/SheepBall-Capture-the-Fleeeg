@@ -83,6 +83,9 @@ public class NetworkPlayer : NetworkMessageHandler
 
         //dropped sheep
         NetworkManager.singleton.client.RegisterHandler(dropped_sheep_message, OnReceiveDroppedSheepMessage);
+
+        //shoot sheep
+        NetworkManager.singleton.client.RegisterHandler(shoot_sheep_message, OnReceiveShootSheepMessage);
     }
 
     //impedir jogador nao local de receber input
@@ -159,6 +162,17 @@ public class NetworkPlayer : NetworkMessageHandler
         if (_msg.playerName != transform.name)
         {
             sheepManager.GetComponent<SheepAI>().processDroppedSheepMessage(_msg);
+        }
+    }
+
+    //recebe do servidor uma shootsheep message
+    private void OnReceiveShootSheepMessage(NetworkMessage _message)
+    {
+        ShootSheepMessage _msg = _message.ReadMessage<ShootSheepMessage>();
+
+        if (_msg.playerName != transform.name)
+        {
+            sheepManager.GetComponent<SheepAI>().processShootSheepMessage(_msg);
         }
     }
 

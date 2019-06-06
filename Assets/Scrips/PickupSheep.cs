@@ -147,7 +147,31 @@ public class PickupSheep : NetworkMessageHandler
                 userControls.changeWalkSpeed(0.65f);
                 break;
         }
-    }   
+    }
+
+    private void pickupSheep()
+    {
+        GameObject sheepToPickup = sheepColliding[0];
+        sheepColliding.RemoveAt(0);
+
+        SheepMovement sheepToPickup_movement = sheepToPickup.GetComponentInChildren<SheepMovement>();
+        Animator sheepToPickup_animator = sheepToPickup.GetComponentInChildren<Animator>();
+        Rigidbody sheepToPickup_rb = sheepToPickup.GetComponent<Rigidbody>();
+
+        // set state to unavaiable and anim state to ball
+        sheepToPickup_movement.setUnavailable();
+        IAnimState animState = new Ball(ref sheepToPickup_animator);
+        sheepToPickup_movement.SetAnimState(animState);
+
+        sheepGhostBases(sheepToPickup);
+
+        sheepToPickup_rb.velocity = Vector3.zero;
+        sheepToPickup_rb.angularVelocity = Vector3.zero;
+        sheepToPickup_rb.useGravity = false;
+
+        sheepPickedup.Push(sheepToPickup);
+        changePlayerSpeed();
+    }
 
     public GameObject dropSheep()
     {
@@ -176,35 +200,23 @@ public class PickupSheep : NetworkMessageHandler
         return droppedSheep;
     }
 
-    private void pickupSheep()
+    public GameObject prepareToShoot()
     {
-        GameObject sheepToPickup = sheepColliding[0];
-        sheepColliding.RemoveAt(0);
+        if (sheepPickedup.Count == 0)
+            return null;
 
-        SheepMovement sheepToPickup_movement = sheepToPickup.GetComponentInChildren<SheepMovement>();
-        Animator sheepToPickup_animator = sheepToPickup.GetComponentInChildren<Animator>();
-        Rigidbody sheepToPickup_rb = sheepToPickup.GetComponent<Rigidbody>();
+        GameObject sheep = sheepPickedup.Pop();
 
-        // set state to unavaiable and anim state to ball
-        sheepToPickup_movement.setUnavailable();
-        IAnimState animState = new Ball(ref sheepToPickup_animator);
-        sheepToPickup_movement.SetAnimState(animState);
-        
-        sheepGhostBases(sheepToPickup);
-
-        sheepToPickup_rb.velocity = Vector3.zero;
-        sheepToPickup_rb.angularVelocity = Vector3.zero;
-        sheepToPickup_rb.useGravity = false;
-
-        sheepPickedup.Push(sheepToPickup);
         changePlayerSpeed();
+
+        return sheep;
     }
 
     public void updateSheepRotation()
     {
         if (sheepPickedup.Count == 0) return;
+
         int index = 0;
-        GameObject[] arrPinkBoxes = sheepPickedup.ToArray();
         foreach (GameObject sheep in sheepPickedup)
         {
             Vector3 newV = gameObject.transform.position;
