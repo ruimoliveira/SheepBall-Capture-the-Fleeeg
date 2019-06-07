@@ -235,16 +235,34 @@ public class SheepAI : NetworkMessageHandler
             sheep_rb.velocity = Vector3.zero;
             sheep_rb.useGravity = true;
 
-            sheepCollideWithBases(sheep);
+            sheepCollideWithBases(sheep, false);
             sheep_movement.setPickedUpBy("");
         }
     }
 
-    private void sheepCollideWithBases(GameObject sheep)
+    public void processLandSheepMessage(LandSheepMessage _msg)
+    {
+        GameObject sheep = GameObject.Find(_msg.sheepName);
+
+        if (sheep != null)
+        {
+            SheepMovement sheep_movement = sheep.GetComponent<SheepMovement>();
+            Animator sheep_animator = sheep.GetComponentInChildren<Animator>();
+
+            // set state to available and anim state to iddle
+            sheep_movement.setAvailable();
+            IAnimState animState = new Iddle(ref sheep_animator);
+            sheep_movement.SetAnimState(animState);
+
+            sheepCollideWithBases(sheep, true);
+        }
+    }
+
+    private void sheepCollideWithBases(GameObject sheep, bool ignore)
     {
         foreach (GameObject wall in baseWalls)
         {
-            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>(), false);
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>(), ignore);
         }
     }
 

@@ -21,6 +21,7 @@ public class NetworkServerRelay : NetworkMessageHandler
         NetworkServer.RegisterHandler(picked_up_sheep_message, SendPickedUpSheep);
         NetworkServer.RegisterHandler(dropped_sheep_message, SendDroppedSheep);
         NetworkServer.RegisterHandler(shoot_sheep_message, SendShootSheep);
+        NetworkServer.RegisterHandler(land_sheep_message, SendLandSheep);
     }
 
     private void SendPlayerMovement(NetworkMessage _message)
@@ -58,5 +59,11 @@ public class NetworkServerRelay : NetworkMessageHandler
         sheep_rb.AddRelativeForce(new Vector3(0, 0.1f, -1.2f) * _msg.impulse, ForceMode.Impulse);
 
         NetworkServer.SendToAll(shoot_sheep_message, _msg);
+    }
+
+    public void SendLandSheep(NetworkMessage _message)
+    {
+        LandSheepMessage _msg = _message.ReadMessage<LandSheepMessage>();
+        NetworkServer.SendToAll(land_sheep_message, _msg);
     }
 }

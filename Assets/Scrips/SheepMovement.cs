@@ -14,6 +14,7 @@ public class SheepMovement : NetworkMessageHandler
     private IAnimState animState;
     private Animator m_animator;
     // private TerrainData m_arena;
+    private GameObject[] baseWalls;
 
     private const float ROTATION_SPEED = 500f;
     private const float MOVING_SPEED = 5f;
@@ -51,6 +52,7 @@ public class SheepMovement : NetworkMessageHandler
         m_animator = GetComponentInChildren<Animator>();
         animState = new Iddle(ref m_animator);
         // m_arena = GameObject.FindGameObjectWithTag("Arena").GetComponent<Terrain>().terrainData;
+        baseWalls = GameObject.FindGameObjectsWithTag(Constants.BASE_WALL_TAG);
     }
 
     // Update is called once per frame
@@ -91,13 +93,28 @@ public class SheepMovement : NetworkMessageHandler
                 break;
 
             case (int)State.Flying:
+                // TO DO: change to detect collision with ground and then check if sheep is immobile for a few frames
+                // so that sheep is not available immediatly as it touches the ground)
+                // (other alternative is to immediatly stop the sheep as it touches the ground - this eliminates the sheep's sliding,
+                // and would be more coherent with the UI trajectory and target)
+                Debug.Log("Flying: " + transform.position.y);
+                if (transform.position.y < 0.51)
+                {
+                    Debug.Log("JUST LANDED :D");
+                    state = (int)State.Available;
+                    // IAnimState animState = new Iddle(ref m_animator);
+                    // SetAnimState(animState);
+                    sheepCollideWithBases(transform.gameObject, true);
+                }
                 /*
+                 * 
                 if ((int)(transform.position.y*10) <= (int)(getHeightOfTerrainAt() + sheepFeetFromFloor) * 10)
                 {
                     Debug.Log("SHEEP: " + (transform.position.y) + " TERRAIN: " + ((getHeightOfTerrainAt() + sheepFeetFromFloor)));
                     Debug.Log("TODO: DEBUG THIS");
                     state = (int)State.Available;
-                }*/
+                }
+                */
                 break;
         }
 
@@ -275,5 +292,13 @@ public class SheepMovement : NetworkMessageHandler
     public void SetAnimState(IAnimState animStateArg)
     {
         animState = animStateArg;
+    }
+
+    private void sheepCollideWithBases(GameObject sheep, bool ignore)
+    {
+        foreach (GameObject wall in baseWalls)
+        {
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>(), ignore);
+        }
     }
 }
