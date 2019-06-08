@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using SheepAnimationState;
+using PlayerManager;
 
 public class SheepMovement : NetworkMessageHandler
 {
@@ -20,6 +21,7 @@ public class SheepMovement : NetworkMessageHandler
     private const float MOVING_SPEED = 5f;
     private const float SCARED_ROTATION_SPEED = 1000f;
     private const float SCARED_MOVING_SPEED = 2f;
+    private const float SCARE_DISTANCE = 4f;
     private const float sheepFeetFromFloor = 2;
 
     [Header("Sheep Properties")]
@@ -28,7 +30,7 @@ public class SheepMovement : NetworkMessageHandler
     [Header("Sheep Movement Properties")]
     public bool canSendNetworkMovement;
     public float speed;
-    public float networkSendRate = 5;
+    public float networkSendRate = 60;
     public float timeBetweenMovementStart;
     public float timeBetweenMovementEnd;
 
@@ -66,6 +68,20 @@ public class SheepMovement : NetworkMessageHandler
         else if (state == (int)State.Unavailable){ //servidor so faz lerp se pickedup sheeps (unica situacao em que cliente tem autoridade sobre elas)
             NetworkLerp();
             return;
+        }
+
+        GameObject closestPlayer = getClosestPlayer();
+        if(closestPlayer != null)
+        {
+            if(canBeScared())
+            {
+                var opposite_direction = transform.position - closestPlayer.transform.position;
+                scare(opposite_direction);
+            }
+        }
+        else if(state == (int)State.Scared)
+        {
+            unscare();
         }
 
         switch (state)
@@ -161,6 +177,36 @@ public class SheepMovement : NetworkMessageHandler
     {
         return Terrain.activeTerrain.SampleHeight(transform.position);
     }
+
+    public GameObject getClosestPlayer()
+    {
+        GameObject closestPlayer = null;
+        float minDistance = -1f;
+        float distance;
+        GameObject player;
+
+        foreach (GameObject p in Manager.Instance.GetConnectedPlayers())
+        {
+            player = p.transform.Find("Graphics").gameObject;
+            distance = Vector3.Distance(player.transform.position, transform.position);
+    
+            if (distance <= SCARE_DISTANCE)
+            {
+                if(distance <= minDistance || minDistance == -1f)
+                {
+                    minDistance = distance;
+                    closestPlayer = player;
+                }
+            }
+        }
+
+        return closestPlayer;
+    }
+
+    public bool canBeScared()
+    {
+        return state != (int)State.Unavailable && state != (int)State.Flying;
+    }
     
     public IEnumerator move()
     {
@@ -185,9 +231,6 @@ public class SheepMovement : NetworkMessageHandler
 
     public void scare(Vector3 direction)//TO DO: test + change to continuous movement
     {
-        if (state == (int)State.Flying)
-            return;
-
         float magnitude = Mathf.Sqrt((direction.x * direction.x) + (direction.z * direction.z));
 
         float x_normalized = direction.x / magnitude;

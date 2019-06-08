@@ -36,9 +36,6 @@ public class SheepAI : NetworkMessageHandler
 
         timer -= Time.deltaTime;
 
-        updatePlayers();
-        scareSheep();
-
         if (timer <= 0)
         {
             updateAvailableSheeps();
@@ -47,15 +44,7 @@ public class SheepAI : NetworkMessageHandler
         }
     }
 
-    public void updatePlayers()
-    {
-        players.Clear();
-        foreach (GameObject p in Manager.Instance.GetConnectedPlayers())
-        {
-            players.Add(p.transform.Find("Graphics").gameObject);
-        }
-    }
-
+    //this is called from the SheepSpawn script
     public void addSheep(GameObject sheep)
     {
         sheeps.Add(sheep);
@@ -69,33 +58,6 @@ public class SheepAI : NetworkMessageHandler
             if (sheep.GetComponent<SheepMovement>().getState() == (int)State.Available)
             {
                 available_sheeps.Add(sheep);
-            }
-        }
-    }
-
-    void scareSheep()
-    {
-        foreach (GameObject player in players)
-        {
-            playerScareSheep(player, sheeps);
-        }
-    }
-
-    void playerScareSheep(GameObject player, List<GameObject> sheeps)
-    {
-        foreach (GameObject sheep in sheeps)
-        {
-            float distance = Vector3.Distance(player.transform.position, sheep.transform.position);
-            var sheep_script = sheep.GetComponent<SheepMovement>();
-
-            if (sheep_script.getState() != (int)State.Unavailable && distance < SCARE_DISTANCE)
-            {
-                var opposite_direction = sheep.transform.position - player.transform.position;
-                sheep_script.scare(opposite_direction);
-            }
-            else if(sheep_script.getState() == (int)State.Scared && distance >= SCARE_DISTANCE)
-            {
-                sheep_script.unscare();
             }
         }
     }
