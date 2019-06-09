@@ -76,7 +76,7 @@ public class ShootSheep : NetworkMessageHandler
     private IEnumerator OnCollisionEnter(Collision collision)
     {
         if (stunned)
-            yield return -1;
+            yield return 0;
 
         int sheep_state;
         if (collision.collider.tag == Constants.SHEEP_TAG)
@@ -95,7 +95,7 @@ public class ShootSheep : NetworkMessageHandler
     {
         Debug.Log("stunned");
         toggleInputScripts(false);
-        // drop sheep
+        // GetComponent<PickupSheep>().dropAllSheep();
         // make sheep run away
         GetComponent<Rigidbody>().isKinematic = true;
         // TO DO: change player animation
@@ -104,6 +104,7 @@ public class ShootSheep : NetworkMessageHandler
 
     private void unstun()
     {
+        Debug.Log("UNstunned");
         stunned = false;
         // TO DO: change player animation
         GetComponent<Rigidbody>().isKinematic = false;

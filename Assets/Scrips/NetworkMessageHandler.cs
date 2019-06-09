@@ -60,8 +60,6 @@ public abstract class NetworkMessageHandler : NetworkBehaviour
     public class LandSheepMessage : MessageBase
     {
         public string sheepName;
-        public int sheepState;
-        public int sheepAnimation;
     }
 
     public class MatchInfoMessage : MessageBase

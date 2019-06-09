@@ -122,6 +122,7 @@ public class SheepMovement : NetworkMessageHandler
                     // SetAnimState(animState);
                     // sheepCollideWithBases(transform.gameObject, true);
                     ignoreCollisionWithPlayers(transform.gameObject, true);
+                    // SendLandSheepMessage(transform.gameObject.name);
                 }
                 /*
                  * 
@@ -172,6 +173,17 @@ public class SheepMovement : NetworkMessageHandler
 
         //NetworkServer.SendToAll(sheep_movement_msg, _msg);
         NetworkManager.singleton.client.Send(sheep_movement_msg, _msg);
+    }
+
+    public void SendLandSheepMessage(string _sheepName)
+    {
+        LandSheepMessage _msg = new LandSheepMessage()
+        {
+            sheepName = _sheepName
+        };
+
+        //NetworkServer.SendToAll(sheep_movement_msg, _msg);
+        NetworkManager.singleton.client.Send(land_sheep_message, _msg);
     }
 
     float getHeightOfTerrainAt()

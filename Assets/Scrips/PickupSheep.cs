@@ -19,11 +19,6 @@ public class PickupSheep : NetworkMessageHandler
     public float timeBetweenMovementStart;
     public float timeBetweenMovementEnd;
 
-    public Stack<GameObject> getSheepStack()
-    {
-        return sheepPickedup;
-    }
-
     private void Awake()
     {
         userControls = GetComponent<ThirdPersonUserControl>();
@@ -200,6 +195,38 @@ public class PickupSheep : NetworkMessageHandler
         return droppedSheep;
     }
 
+    public void dropAllSheep()
+    {
+        if (sheepPickedup.Count == 0)
+            return;
+
+        SheepMovement droppedSheep_movement;
+        Animator droppedSheep_animator;
+        Rigidbody droppedSheep_rb;
+
+        for (int i = 0; i < sheepPickedup.Count; i++)
+        {
+            GameObject droppedSheep = sheepPickedup.Pop();
+
+            droppedSheep_movement = droppedSheep.GetComponentInChildren<SheepMovement>();
+            droppedSheep_animator = droppedSheep.GetComponentInChildren<Animator>();
+            droppedSheep_rb = droppedSheep.GetComponent<Rigidbody>();
+
+            // set state to available and anim state to iddle
+            droppedSheep_movement.setAvailable();
+            IAnimState animState = new Iddle(ref droppedSheep_animator);
+            droppedSheep_movement.SetAnimState(animState);
+
+            sheepCollideWithBases(droppedSheep);
+            changePlayerSpeed();
+
+            droppedSheep_rb.velocity = Vector3.zero;
+            droppedSheep_rb.useGravity = true;
+
+            SendDroppedSheepMessage(droppedSheep.transform.name, droppedSheep_movement.getState(), droppedSheep_animator.GetInteger("Index"));
+        }
+    }
+
     public GameObject prepareToShoot()
     {
         if (sheepPickedup.Count == 0)
@@ -243,7 +270,12 @@ public class PickupSheep : NetworkMessageHandler
             sheep.transform.Rotate(new Vector3(0, 180, 0),Space.Self);
         }
     }
-    
+
+    public Stack<GameObject> getSheepStack()
+    {
+        return sheepPickedup;
+    }
+
     // Avoid sheep from colliding with base walls
     private void sheepGhostBases(GameObject sheep)
     {
