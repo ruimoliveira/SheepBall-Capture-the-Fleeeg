@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 using PlayerManager;
+using SheepAnimationState;
 
 public class SheepAI : NetworkMessageHandler
 {
@@ -15,9 +16,15 @@ public class SheepAI : NetworkMessageHandler
 
     private float timer = TIME_BETWEEN_MOVEMENT;
 
+    private GameObject[] baseWalls;
+
     enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
     private const float TIME_BETWEEN_MOVEMENT = 1f;
-    private const float SCARE_DISTANCE = 4f;
+
+    void Start()
+    {
+         baseWalls = GameObject.FindGameObjectsWithTag(Constants.BASE_WALL_TAG);
+    }
 
     // Update is called once per frame
     void FixedUpdate()
@@ -28,9 +35,6 @@ public class SheepAI : NetworkMessageHandler
 
         timer -= Time.deltaTime;
 
-        updatePlayers();
-        scareSheep();
-
         if (timer <= 0)
         {
             updateAvailableSheeps();
@@ -39,15 +43,7 @@ public class SheepAI : NetworkMessageHandler
         }
     }
 
-    public void updatePlayers()
-    {
-        players.Clear();
-        foreach (GameObject p in Manager.Instance.GetConnectedPlayers())
-        {
-            players.Add(p.transform.Find("Graphics").gameObject);
-        }
-    }
-
+    //this is called from the SheepSpawn script
     public void addSheep(GameObject sheep)
     {
         sheeps.Add(sheep);
@@ -61,33 +57,6 @@ public class SheepAI : NetworkMessageHandler
             if (sheep.GetComponent<SheepMovement>().getState() == (int)State.Available)
             {
                 available_sheeps.Add(sheep);
-            }
-        }
-    }
-
-    void scareSheep()
-    {
-        foreach (GameObject player in players)
-        {
-            playerScareSheep(player, sheeps);
-        }
-    }
-
-    void playerScareSheep(GameObject player, List<GameObject> sheeps)
-    {
-        foreach (GameObject sheep in sheeps)
-        {
-            float distance = Vector3.Distance(player.transform.position, sheep.transform.position);
-            var sheep_script = sheep.GetComponent<SheepMovement>();
-
-            if (sheep_script.getState() != (int)State.Unavailable && distance < SCARE_DISTANCE)
-            {
-                var opposite_direction = sheep.transform.position - player.transform.position;
-                sheep_script.scare(opposite_direction);
-            }
-            else if(sheep_script.getState() == (int)State.Scared && distance >= SCARE_DISTANCE)
-            {
-                sheep_script.unscare();
             }
         }
     }
@@ -155,24 +124,118 @@ public class SheepAI : NetworkMessageHandler
         }
     }
 
-    public void receiveSheepMessage(NetworkMessage _message)
+    public void processSheepMovementMessage(SheepMovementMessage _msg)
     {
-        //server does not care about receiving messages
+        //server does not care about sheep movement receiving messages
         if(isServer)
             return;
 
-        SheepMovementMessage _msg = _message.ReadMessage<SheepMovementMessage>();
-
         GameObject sheep = GameObject.Find(_msg.objectTransformName);
-        sheep.transform.SetParent(transform);
-        foreach (GameObject player in this.players)
-        {
-            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), player.GetComponent<Collider>()); // Ignore collision with players
-        }
 
         if (sheep != null)
         {
-            sheep.GetComponent<SheepMovement>().localMove(_msg.objectPosition, _msg.objectRotation, _msg.time, _msg.objectAnimation);
+            SheepMovement sheep_movement = sheep.GetComponent<SheepMovement>();
+
+            if (sheep_movement.getState() != (int)State.Unavailable)
+            {
+                sheep_movement.localMove(_msg.objectPosition, _msg.objectRotation, _msg.time, _msg.objectAnimation);
+            }
+        }
+    }
+
+    public void processPickedUpSheepMessage(PickedUpSheepMessage _msg)
+    {
+        GameObject sheep = GameObject.Find(_msg.sheepName);
+       
+        if (sheep != null)
+        {
+            SheepMovement sheep_movement = sheep.GetComponent<SheepMovement>();
+            Rigidbody sheep_rb = sheep.GetComponent<Rigidbody>();
+
+            sheep_rb.velocity = Vector3.zero;
+            sheep_rb.angularVelocity = Vector3.zero;
+            sheep_rb.useGravity = false;
+
+            sheep_movement.setPickedUpBy(_msg.playerName);
+            sheep_movement.setState(_msg.sheepState);
+            sheep_movement.localMove(_msg.sheepPosition, _msg.sheepRotation, _msg.time, _msg.sheepAnimation);
+        }
+    }
+    public void processDroppedSheepMessage(DroppedSheepMessage _msg)
+    {
+        GameObject sheep = GameObject.Find(_msg.sheepName);
+
+        if (sheep != null)
+        {
+            SheepMovement sheep_movement = sheep.GetComponent<SheepMovement>();
+            Rigidbody sheep_rb = sheep.GetComponent<Rigidbody>();
+
+            sheep_rb.velocity = Vector3.zero;
+            sheep_rb.useGravity = true;
+
+            sheep_movement.setPickedUpBy("");
+            sheep_movement.setState(_msg.sheepState);
+        }
+    }
+
+    public void processShootSheepMessage(ShootSheepMessage _msg)
+    {
+        GameObject sheep = GameObject.Find(_msg.sheepName);
+
+        if (sheep != null)
+        {
+            SheepMovement sheep_movement = sheep.GetComponent<SheepMovement>();
+            Animator sheep_animator = sheep.GetComponentInChildren<Animator>();
+            Rigidbody sheep_rb = sheep.GetComponent<Rigidbody>();
+
+            // set state to flying and anim state to shot
+            sheep_movement.setFlying();
+            IAnimState animState = new Shot(ref sheep_animator);
+            sheep_movement.SetAnimState(animState);
+
+            sheep_rb.velocity = Vector3.zero;
+            sheep_rb.useGravity = true;
+
+            // ignoreCollisionWithBases(sheep, false);
+            ignoreCollisionWithPlayers(sheep, false);
+            sheep_movement.setPickedUpBy("");
+        }
+    }
+
+    public void processLandSheepMessage(LandSheepMessage _msg)
+    {
+        GameObject sheep = GameObject.Find(_msg.sheepName);
+
+        if (sheep != null)
+        {
+            SheepMovement sheep_movement = sheep.GetComponent<SheepMovement>();
+            Animator sheep_animator = sheep.GetComponentInChildren<Animator>();
+
+            // set state to available and anim state to iddle
+            sheep_movement.setAvailable();
+            IAnimState animState = new Iddle(ref sheep_animator);
+            sheep_movement.SetAnimState(animState);
+
+            // ignoreCollisionWithBases(sheep, true);
+            ignoreCollisionWithPlayers(sheep, true);
+        }
+    }
+
+    private void ignoreCollisionWithBases(GameObject sheep, bool ignore)
+    {
+        foreach (GameObject wall in baseWalls)
+        {
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>(), ignore);
+        }
+    }
+
+    private void ignoreCollisionWithPlayers(GameObject sheep, bool ignore)
+    {
+        GameObject player;
+        foreach (GameObject p in Manager.Instance.GetConnectedPlayers())
+        {
+            player = p.transform.Find("Graphics").gameObject;
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), player.GetComponent<Collider>(), ignore);
         }
     }
 

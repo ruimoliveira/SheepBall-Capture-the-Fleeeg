@@ -3,24 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using SheepAnimationState;
+using PlayerManager;
 
 public class SheepMovement : NetworkMessageHandler
 {
-    public Transform sheep_transform;
-    public Rigidbody m_Rigidbody;
-    private int state = (int)State.Available;
+    private Rigidbody m_Rigidbody;
     private Vector3 targetDestination;
     private Quaternion targetRotation;
+    private int state = (int)State.Available;
+    private string pickedUpBy;
+    private IAnimState animState;
+    private Animator m_animator;
+    // private TerrainData m_arena;
+    private GameObject[] baseWalls;
 
     private const float ROTATION_SPEED = 500f;
     private const float MOVING_SPEED = 5f;
     private const float SCARED_ROTATION_SPEED = 1000f;
     private const float SCARED_MOVING_SPEED = 2f;
+    private const float SCARE_DISTANCE = 4f;
     private const float sheepFeetFromFloor = 2;
-    private IAnimState animState;
-
-    private Animator m_animator;
-    private TerrainData m_arena;
 
     [Header("Sheep Properties")]
     public string sheepID;
@@ -28,7 +30,7 @@ public class SheepMovement : NetworkMessageHandler
     [Header("Sheep Movement Properties")]
     public bool canSendNetworkMovement;
     public float speed;
-    public float networkSendRate = 5;
+    public float networkSendRate = 60;
     public float timeBetweenMovementStart;
     public float timeBetweenMovementEnd;
 
@@ -48,11 +50,11 @@ public class SheepMovement : NetworkMessageHandler
         sheepID = "sheep" + GetComponent<NetworkIdentity>().netId.ToString();
         transform.name = sheepID;
 
-        m_animator = GetComponentInChildren<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
-        m_arena = GameObject.FindGameObjectWithTag("Arena").GetComponent<Terrain>().terrainData;
-        
+        m_animator = GetComponentInChildren<Animator>();
         animState = new Iddle(ref m_animator);
+        // m_arena = GameObject.FindGameObjectWithTag("Arena").GetComponent<Terrain>().terrainData;
+        baseWalls = GameObject.FindGameObjectsWithTag(Constants.BASE_WALL_TAG);
     }
 
     // Update is called once per frame
@@ -62,6 +64,24 @@ public class SheepMovement : NetworkMessageHandler
         {
             NetworkLerp();
             return;
+        }
+        else if (state == (int)State.Unavailable){ //servidor so faz lerp se pickedup sheeps (unica situacao em que cliente tem autoridade sobre elas)
+            NetworkLerp();
+            return;
+        }
+
+        GameObject closestPlayer = getClosestPlayer();
+        if(closestPlayer != null)
+        {
+            if(canBeScared())
+            {
+                var opposite_direction = transform.position - closestPlayer.transform.position;
+                scare(opposite_direction);
+            }
+        }
+        else if(state == (int)State.Scared)
+        {
+            unscare();
         }
 
         switch (state)
@@ -76,26 +96,43 @@ public class SheepMovement : NetworkMessageHandler
 
             case (int)State.Moving:
 
-                sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, MOVING_SPEED * Time.fixedDeltaTime);
-                if (Vector3.Distance(sheep_transform.position, targetDestination) < 0.01f)
+                transform.position = Vector3.MoveTowards(transform.position, targetDestination, MOVING_SPEED * Time.fixedDeltaTime);
+                if (Vector3.Distance(transform.position, targetDestination) < 0.01f)
                     state = (int)State.Waiting;
 
                 break;
 
             case (int)State.Scared:
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, SCARED_ROTATION_SPEED * Time.fixedDeltaTime);
-
-                sheep_transform.position = Vector3.MoveTowards(sheep_transform.position, targetDestination, SCARED_MOVING_SPEED * Time.fixedDeltaTime);
+                transform.position = Vector3.MoveTowards(transform.position, targetDestination, SCARED_MOVING_SPEED * Time.fixedDeltaTime);
                 
                 break;
 
             case (int)State.Flying:
-
-                if ((int)(sheep_transform.position.y*10) <= (int)(getHeightOfTerrainAt() + sheepFeetFromFloor) * 10)
+                // TO DO: change to detect collision with ground and then check if sheep is immobile for a few frames
+                // so that sheep is not available immediatly as it touches the ground)
+                // (other alternative is to immediatly stop the sheep as it touches the ground - this eliminates the sheep's sliding,
+                // and would be more coherent with the UI trajectory and target)
+                Debug.Log("Flying: " + transform.position.y);
+                if (transform.position.y < 0.51)
                 {
-                    Debug.Log("SHEEP: " + (sheep_transform.position.y) + " TERRAIN: " + ((getHeightOfTerrainAt() + sheepFeetFromFloor)));
+                    Debug.Log("JUST LANDED :D");
+                    state = (int)State.Available;
+                    // IAnimState animState = new Iddle(ref m_animator);
+                    // SetAnimState(animState);
+                    // sheepCollideWithBases(transform.gameObject, true);
+                    ignoreCollisionWithPlayers(transform.gameObject, true);
+                    // SendLandSheepMessage(transform.gameObject.name);
+                }
+                /*
+                 * 
+                if ((int)(transform.position.y*10) <= (int)(getHeightOfTerrainAt() + sheepFeetFromFloor) * 10)
+                {
+                    Debug.Log("SHEEP: " + (transform.position.y) + " TERRAIN: " + ((getHeightOfTerrainAt() + sheepFeetFromFloor)));
+                    Debug.Log("TODO: DEBUG THIS");
                     state = (int)State.Available;
                 }
+                */
                 break;
         }
 
@@ -106,12 +143,82 @@ public class SheepMovement : NetworkMessageHandler
             canSendNetworkMovement = true;
             StartCoroutine(StartNetworkSendCooldown());
         }
+    }
 
+    private IEnumerator StartNetworkSendCooldown()
+    {
+        timeBetweenMovementStart = Time.time;
+        yield return new WaitForSeconds((1 / networkSendRate));
+        SendNetworkMovement();
+    }
+
+    private void SendNetworkMovement()
+    {
+        timeBetweenMovementEnd = Time.time;
+        int anim_index = m_animator.GetInteger("Index");
+        SendSheepMovementMessage(sheepID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart), anim_index);
+        canSendNetworkMovement = false;
+    }
+
+    public void SendSheepMovementMessage(string _sheepID, Vector3 _position, Quaternion _rotation, float _timeTolerp, int anim_index)
+    {
+        SheepMovementMessage _msg = new SheepMovementMessage()
+        {
+            objectPosition = _position,
+            objectRotation = _rotation,
+            objectTransformName = _sheepID,
+            time = _timeTolerp,
+            objectAnimation = anim_index
+        };
+
+        //NetworkServer.SendToAll(sheep_movement_msg, _msg);
+        NetworkManager.singleton.client.Send(sheep_movement_msg, _msg);
+    }
+
+    public void SendLandSheepMessage(string _sheepName)
+    {
+        LandSheepMessage _msg = new LandSheepMessage()
+        {
+            sheepName = _sheepName
+        };
+
+        //NetworkServer.SendToAll(sheep_movement_msg, _msg);
+        NetworkManager.singleton.client.Send(land_sheep_message, _msg);
     }
 
     float getHeightOfTerrainAt()
     {
-        return Terrain.activeTerrain.SampleHeight(sheep_transform.position);
+        return Terrain.activeTerrain.SampleHeight(transform.position);
+    }
+
+    public GameObject getClosestPlayer()
+    {
+        GameObject closestPlayer = null;
+        float minDistance = -1f;
+        float distance;
+        GameObject player;
+
+        foreach (GameObject p in Manager.Instance.GetConnectedPlayers())
+        {
+            player = p.transform.Find("Graphics").gameObject;
+            distance = Vector3.Distance(player.transform.position, transform.position);
+    
+            if (distance <= SCARE_DISTANCE)
+            {
+                if(distance <= minDistance || minDistance == -1f)
+                {
+                    minDistance = distance;
+                    closestPlayer = player;
+                }
+            }
+        }
+
+        return closestPlayer;
+    }
+
+    public bool canBeScared()
+    {
+        return state != (int)State.Unavailable && state != (int)State.Flying;
     }
     
     public IEnumerator move()
@@ -120,8 +227,8 @@ public class SheepMovement : NetworkMessageHandler
         float z_displace = Random.Range(-10.0f, 10.0f);
         Vector3 displacement = new Vector3(x_displace, 0f, z_displace);
 
-        targetDestination = sheep_transform.position + displacement;
-        targetRotation = Quaternion.LookRotation(sheep_transform.position - targetDestination);
+        targetDestination = transform.position + displacement;
+        targetRotation = Quaternion.LookRotation(transform.position - targetDestination);
 
         state = (int)State.Rotating;
         yield return new WaitUntil(() => state == (int)State.Moving); //wait until rotation finishes
@@ -137,9 +244,6 @@ public class SheepMovement : NetworkMessageHandler
 
     public void scare(Vector3 direction)//TO DO: test + change to continuous movement
     {
-        if (state == (int)State.Flying)
-            return;
-
         float magnitude = Mathf.Sqrt((direction.x * direction.x) + (direction.z * direction.z));
 
         float x_normalized = direction.x / magnitude;
@@ -150,8 +254,8 @@ public class SheepMovement : NetworkMessageHandler
 
         Vector3 displacement = new Vector3(x_intensity * x_normalized, 0.0f, z_intensity * z_normalized);
 
-        targetDestination = sheep_transform.position + displacement;
-        targetRotation = Quaternion.LookRotation(sheep_transform.position - targetDestination);
+        targetDestination = transform.position + displacement;
+        targetRotation = Quaternion.LookRotation(transform.position - targetDestination);
 
         state = (int)State.Scared;
     }
@@ -189,50 +293,20 @@ public class SheepMovement : NetworkMessageHandler
         timeStartedLerping = Time.time;
     }
 
-    private IEnumerator StartNetworkSendCooldown()
-    {
-        timeBetweenMovementStart = Time.time;
-        yield return new WaitForSeconds((1 / networkSendRate));
-        SendNetworkMovement();
-    }
-
-    private void SendNetworkMovement()
-    {
-        timeBetweenMovementEnd = Time.time;
-        int anim_index = m_animator.GetInteger("Index");
-        SendMovementMessage(sheepID, transform.position, transform.rotation, (timeBetweenMovementEnd - timeBetweenMovementStart), anim_index);
-        canSendNetworkMovement = false;
-    }
-
-    public void SendMovementMessage(string _sheepID, Vector3 _position, Quaternion _rotation, float _timeTolerp, int anim_index)
-    {
-        SheepMovementMessage _msg = new SheepMovementMessage()
-        {
-            objectPosition = _position,
-            objectRotation = _rotation,
-            objectTransformName = _sheepID,
-            time = _timeTolerp,
-            objectAnimation = anim_index
-        };
-
-        //NetworkServer.SendToAll(sheep_movement_msg, _msg);
-        NetworkManager.singleton.client.Send(sheep_movement_msg, _msg);
-    }
-
     private void NetworkLerp()
     {
         if (isLerpingPosition)
         {
             float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
 
-            sheep_transform.position = Vector3.Lerp(lastRealPosition, realPosition, lerpPercentage);
+            transform.position = Vector3.Lerp(lastRealPosition, realPosition, lerpPercentage);
         }
 
         if (isLerpingRotation)
         {
             float lerpPercentage = (Time.time - timeStartedLerping) / timeToLerp;
 
-            sheep_transform.rotation = Quaternion.Lerp(lastRealRotation, realRotation, lerpPercentage);
+            transform.rotation = Quaternion.Lerp(lastRealRotation, realRotation, lerpPercentage);
         }
     }
     
@@ -244,6 +318,16 @@ public class SheepMovement : NetworkMessageHandler
     public void setState(int state)
     {
         this.state = state;
+    }
+
+    public string getPickedUpBy()
+    {
+        return pickedUpBy;
+    }
+
+    public void setPickedUpBy(string pickedUpBy)
+    {
+        this.pickedUpBy = pickedUpBy;
     }
 
     public void setAvailable()
@@ -264,5 +348,23 @@ public class SheepMovement : NetworkMessageHandler
     public void SetAnimState(IAnimState animStateArg)
     {
         animState = animStateArg;
+    }
+
+    private void sheepCollideWithBases(GameObject sheep)
+    {
+        foreach (GameObject wall in baseWalls)
+        {
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>(), false);
+        }
+    }
+
+    private void ignoreCollisionWithPlayers(GameObject sheep, bool ignore)
+    {
+        GameObject player;
+        foreach (GameObject p in Manager.Instance.GetConnectedPlayers())
+        {
+            player = p.transform.Find("Graphics").gameObject;
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), player.GetComponent<Collider>(), ignore);
+        }
     }
 }
