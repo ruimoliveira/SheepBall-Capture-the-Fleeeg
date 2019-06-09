@@ -336,7 +336,5 @@ public class NetworkPlayer : NetworkMessageHandler
     {
         GameObject go = this.gameObject.transform.GetChild(0).gameObject;
         go.active = on;
-        if(on && !isLocalPlayer)
-            disableLocalPlayerScripts();
     }
 }
