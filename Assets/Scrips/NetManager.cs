@@ -6,31 +6,31 @@ using UnityEngine.Networking;
 public class NetManager : MonoBehaviour
 {
 
-    public NetworkManager manager;
-    //public bool done = false;
+    public GameObject manager;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        manager = GameObject.FindGameObjectWithTag("NetworkManager");
     }
 
     // Update is called once per frame
     void Update()
     {
-        //if (done)
-        //    return;
-
-        if (Input.GetKeyDown(KeyCode.Alpha9))
-        {
-            manager.StartHost();
-            //manager.StartClient();
-            //    done = true;
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            manager.StartClient();
-        //    done = true;
-        }
+        if (manager == null)
+            manager = GameObject.FindGameObjectWithTag("NetworkManager");
     }
+
+    public void startHost()
+    {
+
+        manager.GetComponent<NetworkManager>().StartHost();
+
+    }
+
+    public void startClient()
+    {
+        manager.GetComponent<NetworkManager>().StartClient();
+    }
+
 }

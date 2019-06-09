@@ -522,15 +522,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2709097915153586131, guid: 261d0b6c4dba25141aea4e53799422ca,
-        type: 3}
-      propertyPath: m_Camera
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 2709097914935497490, guid: 261d0b6c4dba25141aea4e53799422ca,
         type: 3}
       propertyPath: m_Text
       value: 'Impulse: 30'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2709097915153586131, guid: 261d0b6c4dba25141aea4e53799422ca,
+        type: 3}
+      propertyPath: m_Camera
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 261d0b6c4dba25141aea4e53799422ca, type: 3}
@@ -615,6 +615,7 @@ MonoBehaviour:
   m_TiltMin: 45
   m_LockCursor: 0
   m_VerticalAutoReturn: 0
+  RealTarget: {fileID: 0}
 --- !u!54 &849525579
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1405,6 +1406,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8c3d8d8f6776374da64baa36cdf3eb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sheepCollection: {fileID: 0}
 --- !u!65 &1940441032
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1549,6 +1551,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: GrassMacro
+      objectReference: {fileID: 0}
+    - target: {fileID: 6279436271655917564, guid: 3134e35d377ffd149b044f71af4b730f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6279436271655917565, guid: 3134e35d377ffd149b044f71af4b730f,
         type: 3}

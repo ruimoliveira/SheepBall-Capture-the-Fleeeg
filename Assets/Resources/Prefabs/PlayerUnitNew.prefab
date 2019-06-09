@@ -79,6 +79,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerID: 
+  nickName: 
+  team: 0
   canSendNetworkMovement: 0
   speed: 0
   networkSendRate: 5
@@ -92,6 +94,12 @@ MonoBehaviour:
   lastRealRotation: {x: 0, y: 0, z: 0, w: 0}
   timeStartedLerping: 0
   timeToLerp: 0
+  sendMovementMessages: 0
+  gameStateManagerObj: {fileID: 0}
+  networkServerRelayPrefab: {fileID: 5795965653951506218, guid: 617faebbbc7a9924f83c2887cdaba8a3,
+    type: 3}
+  gameStateManagerPrefab: {fileID: 9082238402714151701, guid: de23ec58b6217fa41b539aca10f4422c,
+    type: 3}
 --- !u!1001 &7473096107734320104
 PrefabInstance:
   m_ObjectHideFlags: 0

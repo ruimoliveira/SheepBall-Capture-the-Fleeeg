@@ -19,10 +19,14 @@ public class StartMenuScript : MonoBehaviour
         else
         {
             string[] values = resolution.Split('x');
+            int horRes = -1;
+            int verRes = -1;
             if (fullscreen == 0)
-                Screen.SetResolution(int.Parse(values[0]), int.Parse(values[1]), false);
+                if(int.TryParse(values[0], out horRes) && int.TryParse(values[1], out verRes))
+                    Screen.SetResolution(horRes, verRes, false);
             else
-                Screen.SetResolution(int.Parse(values[0]), int.Parse(values[1]), true);
+                if (int.TryParse(values[0], out horRes) && int.TryParse(values[1], out verRes))
+                    Screen.SetResolution(horRes, verRes, true);
         }
         
         checkerSetter("masterVolume");
