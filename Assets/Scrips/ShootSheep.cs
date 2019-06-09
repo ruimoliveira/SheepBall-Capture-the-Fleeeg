@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using SheepAnimationState;
+using PlayerManager;
+using UnityStandardAssets.Characters.ThirdPerson;
 
 public class ShootSheep : NetworkMessageHandler
 {
@@ -22,6 +24,7 @@ public class ShootSheep : NetworkMessageHandler
     private MeshRenderer trajectoryMeshRenderer;
     private SpriteRenderer trajectoryMeshRendererAim;
     private GameObject[] baseWalls;
+    private bool stunned = false;
 
     private void Awake()
     {
@@ -70,6 +73,51 @@ public class ShootSheep : NetworkMessageHandler
         camera.transform.position = cameraPos;
     }
 
+    private IEnumerator OnCollisionEnter(Collision collision)
+    {
+        if (stunned)
+            yield return -1;
+
+        int sheep_state;
+        if (collision.collider.tag == Constants.SHEEP_TAG)
+        {
+            sheep_state = collision.collider.gameObject.GetComponent<SheepMovement>().getState();
+            if(sheep_state == (int)State.Flying)
+            {
+                stun();
+                yield return new WaitForSeconds(3f);
+                unstun();
+            }
+        }
+    }
+
+    private void stun()
+    {
+        Debug.Log("stunned");
+        toggleInputScripts(false);
+        // drop sheep
+        // make sheep run away
+        GetComponent<Rigidbody>().isKinematic = true;
+        // TO DO: change player animation
+        stunned = true;
+    }
+
+    private void unstun()
+    {
+        stunned = false;
+        // TO DO: change player animation
+        GetComponent<Rigidbody>().isKinematic = false;
+        toggleInputScripts(true);
+    }
+
+    //impedir jogador nao local de receber input
+    private void toggleInputScripts(bool enable)
+    {
+        GetComponent<ThirdPersonUserControl>().enabled = enable;
+        GetComponent<ThirdPersonCharacter>().enabled = enable;
+        GetComponent<PickupSheep>().enabled = enable;
+    }
+
     private void shootSheep()
     {
         if (pickupSheep.getSheepStack().Count == 0)
@@ -100,7 +148,8 @@ public class ShootSheep : NetworkMessageHandler
         sheep_rb.velocity = Vector3.zero;
         sheep_rb.useGravity = true;
 
-        sheepCollideWithBases(sheep);
+        // sheepCollideWithBases(sheep);
+        sheepCollideWithPlayers(sheep);
         sheep_movement.setPickedUpBy("");
 
         SendShootSheepMessage(sheep.transform.name, sheep_movement.getState(), sheep_animator.GetInteger("Index"), impulseStrenth);
@@ -177,26 +226,13 @@ public class ShootSheep : NetworkMessageHandler
         }
     }
 
-    /*private void checkShootSheep()
+    private void sheepCollideWithPlayers(GameObject sheep)
     {
-        if (shotNextFrame != null)
+        GameObject player;
+        foreach (GameObject p in Manager.Instance.GetConnectedPlayers())
         {
-            Rigidbody rbSheep = shotNextFrame.GetComponent<Rigidbody>();
-
-            //rbSheep.AddForceAtPosition(new Vector3(0, 0.1f, 1.2f) * impulseStrenth, shotNextFrame.transform.position, ForceMode.Impulse);
-            rbSheep.AddRelativeForce(new Vector3(0,0.1f,-1.2f) * impulseStrenth, ForceMode.Impulse);
-
-            impulseStrenth = InitialImpulseStrenght;
-            impulseStrenthSpeed = InitialImpulseSpeed;
-            impulseAccel = InitialImpulseAccel;
-            updateImpulseUI();
-
-            shotNextFrame = null;
+            player = p.transform.Find("Graphics").gameObject;
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), player.GetComponent<Collider>(), false);
         }
     }
-
-    private void FixedUpdate()
-    {
-        checkShootSheep();
-    }*/
 }

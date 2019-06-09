@@ -6,6 +6,7 @@ using UnityEngine.Networking.NetworkSystem;
 using PlayerManager;
 using UnityStandardAssets.Characters.ThirdPerson;
 using UnityStandardAssets.Cameras;
+using SheepAnimationState;
 
 public class NetworkPlayer : NetworkMessageHandler
 {
@@ -58,7 +59,7 @@ public class NetworkPlayer : NetworkMessageHandler
         }
         else
         {
-            disableLocalPlayerScripts();
+            disableAllScripts();
 
             //inicializar variaveis lerp
             isLerpingPosition = false;
@@ -91,8 +92,8 @@ public class NetworkPlayer : NetworkMessageHandler
         NetworkManager.singleton.client.RegisterHandler(land_sheep_message, OnReceiveLandSheepMessage);
     }
 
-    //impedir jogador nao local de receber input
-    private void disableLocalPlayerScripts()
+    // desativar todos os scripts dos jogadores nao locais
+    private void disableAllScripts()
     {
         GetComponentInChildren<ThirdPersonUserControl>().enabled = false;
         GetComponentInChildren<ThirdPersonCharacter>().enabled = false;

@@ -20,7 +20,6 @@ public class SheepAI : NetworkMessageHandler
 
     enum State { Available, Rotating, Moving, Waiting, Unavailable, Scared };
     private const float TIME_BETWEEN_MOVEMENT = 1f;
-    private const float SCARE_DISTANCE = 4f;
 
     void Start()
     {
@@ -197,7 +196,8 @@ public class SheepAI : NetworkMessageHandler
             sheep_rb.velocity = Vector3.zero;
             sheep_rb.useGravity = true;
 
-            sheepCollideWithBases(sheep, false);
+            // ignoreCollisionWithBases(sheep, false);
+            ignoreCollisionWithPlayers(sheep, false);
             sheep_movement.setPickedUpBy("");
         }
     }
@@ -216,15 +216,26 @@ public class SheepAI : NetworkMessageHandler
             IAnimState animState = new Iddle(ref sheep_animator);
             sheep_movement.SetAnimState(animState);
 
-            sheepCollideWithBases(sheep, true);
+            // ignoreCollisionWithBases(sheep, true);
+            ignoreCollisionWithPlayers(sheep, true);
         }
     }
 
-    private void sheepCollideWithBases(GameObject sheep, bool ignore)
+    private void ignoreCollisionWithBases(GameObject sheep, bool ignore)
     {
         foreach (GameObject wall in baseWalls)
         {
             Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>(), ignore);
+        }
+    }
+
+    private void ignoreCollisionWithPlayers(GameObject sheep, bool ignore)
+    {
+        GameObject player;
+        foreach (GameObject p in Manager.Instance.GetConnectedPlayers())
+        {
+            player = p.transform.Find("Graphics").gameObject;
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), player.GetComponent<Collider>(), ignore);
         }
     }
 

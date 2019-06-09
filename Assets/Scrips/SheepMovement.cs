@@ -120,7 +120,8 @@ public class SheepMovement : NetworkMessageHandler
                     state = (int)State.Available;
                     // IAnimState animState = new Iddle(ref m_animator);
                     // SetAnimState(animState);
-                    sheepCollideWithBases(transform.gameObject, true);
+                    // sheepCollideWithBases(transform.gameObject, true);
+                    ignoreCollisionWithPlayers(transform.gameObject, true);
                 }
                 /*
                  * 
@@ -337,11 +338,21 @@ public class SheepMovement : NetworkMessageHandler
         animState = animStateArg;
     }
 
-    private void sheepCollideWithBases(GameObject sheep, bool ignore)
+    private void sheepCollideWithBases(GameObject sheep)
     {
         foreach (GameObject wall in baseWalls)
         {
-            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>(), ignore);
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), wall.GetComponent<Collider>(), false);
+        }
+    }
+
+    private void ignoreCollisionWithPlayers(GameObject sheep, bool ignore)
+    {
+        GameObject player;
+        foreach (GameObject p in Manager.Instance.GetConnectedPlayers())
+        {
+            player = p.transform.Find("Graphics").gameObject;
+            Physics.IgnoreCollision(sheep.GetComponent<Collider>(), player.GetComponent<Collider>(), ignore);
         }
     }
 }
